@@ -9,6 +9,7 @@ type Props = {
   className?: string;
   name?: string;
   type?: "rounded" | "square";
+  onClick?: () => void;
 };
 
 const colors = [
@@ -23,6 +24,7 @@ const Avatar = ({
   className,
   name,
   type = "square",
+  onClick,
 }: Props) => {
   return (
     <div
@@ -35,6 +37,7 @@ const Avatar = ({
         size === "md" && "w-10 h-10",
         size === "lg" && "w-12 h-12"
       )}
+      onClick={onClick}
     >
       {src ? (
         <Image src={src} alt={name || "A"} fill className="object-cover" />

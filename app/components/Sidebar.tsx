@@ -1,23 +1,60 @@
+"use client";
+
 import React from "react";
+import { usePathname, useRouter } from "next/navigation";
 import Avatar from "../UI/Avatar";
 import { HomeIcon, UsersRound } from "lucide-react";
+import { cn } from "../utils";
 
 const Sidebar = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const navItems = [
+    {
+      name: "Home",
+      icon: HomeIcon,
+      path: "/",
+    },
+    {
+      name: "Patients",
+      icon: UsersRound,
+      path: "/patients",
+    },
+  ];
+
   return (
     <div className="w-full h-full bg-[#F8F8F7] flex flex-col p-4 border-r border-[#EBEBE8]">
-      <div className="flex  gap-2 items-center justify-start p-2 ">
-        <Avatar src="" fallback="D" size="sm" />
-        <h1 className="text-lg font-semibold">Decoda Health</h1>
+      <div className="flex gap-2 items-center justify-start p-2">
+        <Avatar
+          src=""
+          fallback="D"
+          size="sm"
+          onClick={() => router.push("/")}
+        />
+        <h1 className="text-lg font-semibold cursor-pointer" onClick={() => router.push("/")}>
+          Decoda Health
+        </h1>
       </div>
       <div className="flex flex-col gap-2 mt-20">
-        <button className="flex items-center justify-start gap-2 p-2 rounded-lg hover:bg-[#F0F0EF] transition-all cursor-pointer ">    
-          <HomeIcon className="w-4 h-4" />
-          <span className="text-md font-semibold">Home</span>
-        </button>
-        <button className="flex items-center justify-start gap-2 p-2 rounded-lg hover:bg-[#F0F0EF] transition-all cursor-pointer ">
-          <UsersRound className="w-4 h-4" />
-          <span className="text-md font-semibold">Patients</span>
-        </button>
+        {navItems.map((item) => {
+          const isActive = pathname === item.path;
+          return (
+            <button
+              key={item.path}
+              onClick={() => router.push(item.path)}
+              className={cn(
+                "flex items-center justify-start gap-2 p-2 rounded-lg transition-all cursor-pointer",
+                isActive ? "bg-[#F0F0EF] text-primary" : "hover:bg-[#F0F0EF]"
+              )}
+            >
+              <item.icon
+                className={cn("w-4 h-4", isActive && "text-primary")}
+              />
+              <span className="text-md font-semibold">{item.name}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
