@@ -38,7 +38,7 @@ const Sidebar = () => {
       </div>
       <div className="flex flex-col gap-2 mt-20">
         {navItems.map((item) => {
-          const isActive = pathname === item.path;
+          const isActive = pathname === item.path || (pathname.includes(item.path) && item.path !== "/");
           return (
             <button
               key={item.path}
