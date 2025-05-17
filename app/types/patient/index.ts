@@ -63,3 +63,11 @@ export interface Patient extends PatientBasic {
   measurements: Measurement[];
   medications: Medication[];
 } 
+
+export interface PatientQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: keyof Patient;
+  sortOrder?: 'asc' | 'desc';
+} 

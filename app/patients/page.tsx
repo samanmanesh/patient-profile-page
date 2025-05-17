@@ -1,16 +1,10 @@
 import React from "react";
 import { Suspense } from "react";
 import { PatientsTable } from "../UI/PatientsTable";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import BreadcrumbNavigator from "../UI/BreadcrumbNavigator";
+
 
 async function getPatients(searchParams: {
   [key: string]: string | string[] | undefined;
@@ -41,20 +35,14 @@ export default function PatientsPage({
   return (
     <div className="p-8">
       <div className="flex justify-between items-center ">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/patients" className="text-base font-medium text-gray-900">
-                Patients
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
+        <BreadcrumbNavigator
+          breadcrumbs={[{ label: "Patients", href: "/patients" }]}
+        />
         <Link href="/patients/new">
-        <button className="bg-[#007AFF] text-sm font-medium text-white px-2 py-1 rounded-lg hover:bg-[#007AFF]/90 transition-colors flex items-center gap-1 cursor-pointer">
-          <Plus className="w-4 h-4" />
-          <span>New Patient</span>
-        </button>
+          <button className="bg-[#007AFF] text-sm font-medium text-white px-2 py-1 rounded-lg hover:bg-[#007AFF]/90 transition-colors flex items-center gap-1 cursor-pointer">
+            <Plus className="w-4 h-4" />
+            <span>New Patient</span>
+          </button>
         </Link>
       </div>
 
@@ -73,7 +61,10 @@ async function PatientsTableWrapper({
   const data = await getPatients(searchParams);
   return (
     <div className="mt-4">
-      <PatientsTable data={data.patients} paginationData={data.pagination} />
+      <PatientsTable
+        data={data.patients}
+        pageCount={data.pagination.pageCount}
+      />
     </div>
   );
 }
