@@ -8,6 +8,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
+import PatientInfo from "@/app/components/PatientInfo";
 
 export default function PatientDetail() {
   const params = useParams();
@@ -81,7 +82,7 @@ export default function PatientDetail() {
       className="flex flex-col w-full h-screen p-8 items-center relative
     "
     >
-      <div className="flex  items-center justify-center gap-3">
+      <div className="flex  items-center justify-center gap-3 h-1/6">
         <Avatar
           name={getPatientName()}
           size="xl"
@@ -106,13 +107,11 @@ export default function PatientDetail() {
         onChooseActions={onChooseActions}
       />
 
-      <div className="w-full h-full  flex gap-4 p-4">
-        <div className="w-full h-full">
-          
-        
-
-        
+      <div className="w-full h-5/6  flex gap-4 py-4 ">
+        <div className="w-full  overflow-auto">
+          {patient && <PatientInfo patient={patient} />}
         </div>
+
         <ActionModal
           isOpen={isActionModalOpen}
           onClose={() => setIsActionModalOpen(false)}

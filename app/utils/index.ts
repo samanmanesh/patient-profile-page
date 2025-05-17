@@ -4,3 +4,12 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function getKeyLabel(key: string) {
+  // Convert snake_case to spaces
+  const withSpaces = key.replace(/_/g, ' ');
+  // Convert camelCase to spaces
+  const withCamelSpaces = withSpaces.replace(/([A-Z])/g, ' $1');
+  // Capitalize first letter and trim any extra spaces
+  return withCamelSpaces.charAt(0).toUpperCase() + withCamelSpaces.slice(1).trim();
+}
