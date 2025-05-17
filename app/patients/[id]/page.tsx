@@ -5,17 +5,56 @@ import { Patient } from "@/app/types/patient";
 import Avatar from "@/app/UI/Avatar";
 import BreadcrumbNavigator from "@/app/UI/BreadcrumbNavigator";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Reducer, useEffect, useReducer, useState } from "react";
 import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 
+const patientReducer = (
+  state: Patient | null,
+  action: {
+    type: string;
+    payload:
+      | Partial<Patient>
+      | Patient
+      | { field: keyof Patient; value: string };
+  }
+) => {
+  switch (action.type) {
+    case "setPatient":
+      return action.payload as Patient;
+
+    case "updatePatientField":
+      if ("field" in action.payload && "value" in action.payload) {
+        return {
+          ...state,
+          [action.payload.field]: action.payload.value,
+        } as Patient;
+      }
+      return state;
+    default:
+      return state;
+  }
+};
 export default function PatientDetail() {
   const params = useParams();
   const patientId = params.id;
-  const [patient, setPatient] = useState<Patient | null>(null);
+  const [patient, dispatch] = useReducer(
+    patientReducer as Reducer<
+      Patient | null,
+      {
+        type: string;
+        payload:
+          | Partial<Patient>
+          | Patient
+          | { field: keyof Patient; value: string };
+      }
+    >,
+    null
+  );
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [actions, setActions] = useState<
     {
       label: string;
@@ -51,12 +90,14 @@ export default function PatientDetail() {
   };
 
   useEffect(() => {
+    setIsLoading(true);
     const getPatient = async () => {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}`
       );
       const data = await res.json();
-      setPatient(data);
+      dispatch({ type: "setPatient", payload: data });
+      setIsLoading(false);
     };
     getPatient();
   }, [patientId]);
@@ -75,6 +116,26 @@ export default function PatientDetail() {
   const getPatientName = () => {
     if (!patient) return "";
     return `${patient?.firstName} ${patient?.lastName}`;
+  };
+
+  const savePatient = async () => {
+    if (!patient || isLoading) return;
+    setIsLoading(true);
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}`,
+      {
+        method: "PUT",
+        body: JSON.stringify(patient),
+      }
+    );
+    const data = await res.json();
+    console.log("updated patient", data);
+    dispatch({ type: "setPatient", payload: data });
+    setIsLoading(false);
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+    }, 2000);
   };
 
   return (
@@ -109,7 +170,15 @@ export default function PatientDetail() {
 
       <div className="w-full h-5/6  flex gap-4 py-4 ">
         <div className="w-full  overflow-auto">
-          {patient && <PatientInfo patient={patient} />}
+          {patient && (
+            <PatientInfo
+              patient={patient}
+              dispatch={dispatch}
+              save={savePatient}
+              isLoading={isLoading}
+              saveSuccess={saveSuccess}
+            />
+          )}
         </div>
 
         <ActionModal

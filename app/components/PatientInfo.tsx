@@ -1,15 +1,30 @@
-import React, { useState } from "react";
+import React, { Dispatch, useState } from "react";
 import { Patient } from "../types/patient";
 import { Input } from "@/components/ui/input";
 import { cn, getKeyLabel } from "../utils";
-import { PencilIcon, SaveIcon, SquarePenIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckIcon, Loader2, SaveIcon, SquarePenIcon } from "lucide-react";
 
 type PatientInfoProps = {
   patient: Patient;
+  dispatch: Dispatch<{
+    type: string;
+    payload:
+      | Partial<Patient>
+      | Patient
+      | { field: keyof Patient; value: string };
+  }>;
+  save: () => void;
+  isLoading: boolean;
+  saveSuccess: boolean;
 };
 
-const PatientInfo = ({ patient }: PatientInfoProps) => {
+const PatientInfo = ({
+  patient,
+  dispatch,
+  save,
+  isLoading,
+  saveSuccess,
+}: PatientInfoProps) => {
   const basicInfoToShow: (keyof Patient)[] = [
     "firstName",
     "lastName",
@@ -27,6 +42,29 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
     "guardianPhoneNumber",
   ];
   const [isEditing, setIsEditing] = useState(false);
+
+  const handleInputChange = (key: keyof Patient, value: string) => {
+    dispatch({
+      type: "updatePatientField",
+      payload: {
+        field: key,
+        value: value,
+      },
+    });
+  };
+
+  const getInputType = (key: keyof Patient) => {
+    switch (key) {
+      case "dateOfBirth":
+        return "date";
+      case "gender":
+        return "select";
+      case "phoneNumber":
+        return "tel";
+      default:
+        return "text";
+    }
+  };
 
   return (
     <div className="flex flex-col gap-2 p-4">
@@ -48,17 +86,29 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
       <div className=" grid grid-cols-1 md:grid-cols-3  gap-2 rounded-lg border-2 border-[#F1F1F1]">
         {Object.entries(patient).map(([key, value]) => {
           if (basicInfoToShow.includes(key as keyof Patient)) {
-            console.log(key, value);
             return (
               <div key={key} className="flex flex-col gap-2 p-4">
                 <h4 className="text-sm font-medium text-[#73726E]">
                   {getKeyLabel(key)}
                 </h4>
                 <Input
-                  value={value}
-                  
-                  disabled={!isEditing}
-                  className=" rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none"
+                  value={value ?? ""}
+                  type={getInputType(key as keyof Patient)}
+                  placeholder={
+                    key === "dateOfBirth"
+                      ? "MM/DD/YYYY"
+                      : key === "phoneNumber"
+                      ? "123-456-7890"
+                      : ""
+                  }
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    handleInputChange(key as keyof Patient, e.target.value);
+                  }}
+                  disabled={!isEditing || isLoading}
+                  className={cn(
+                    " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden",
+                    isLoading && "opacity-50 cursor-not-allowed"
+                  )}
                 />
               </div>
             );
@@ -68,11 +118,30 @@ const PatientInfo = ({ patient }: PatientInfoProps) => {
       </div>
       <div className="flex justify-end">
         <button
-          className="rounded-xl bg-emerald-900 text-white  px-3 py-2 hover:bg-emerald-900/80 transition-all duration-300 flex items-center gap-2"
-          onClick={() => setIsEditing(false)}
+          className={cn(
+            "rounded-xl bg-emerald-900 text-white  px-3 py-2 hover:bg-emerald-900/80 transition-all duration-300 flex items-center gap-2",
+            isLoading && "opacity-50 cursor-not-allowed"
+          )}
+          disabled={isLoading}
+          onClick={() => {
+            if (isLoading) return;
+            setIsEditing(false);
+            save();
+          }}
         >
-          <SaveIcon className="w-5 h-5" />
-          Save
+          {isLoading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : saveSuccess ? (
+            <>
+              <CheckIcon className="w-5 h-5" />
+              Saved
+            </>
+          ) : (
+            <>
+              <SaveIcon className="w-5 h-5" />
+              Save
+            </>
+          )}
         </button>
       </div>
     </div>
