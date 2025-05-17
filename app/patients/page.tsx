@@ -1,6 +1,16 @@
 import React from "react";
 import { Suspense } from "react";
 import { PatientsTable } from "../UI/PatientsTable";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { Plus } from "lucide-react";
+import Link from "next/link";
 
 async function getPatients(searchParams: {
   [key: string]: string | string[] | undefined;
@@ -29,12 +39,23 @@ export default function PatientsPage({
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Patients</h1>
-        <button className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
-          Add New Patient
+    <div className="p-8">
+      <div className="flex justify-between items-center ">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/patients" className="text-base font-medium text-gray-900">
+                Patients
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Link href="/patients/new">
+        <button className="bg-[#007AFF] text-sm font-medium text-white px-2 py-1 rounded-lg hover:bg-[#007AFF]/90 transition-colors flex items-center gap-1 cursor-pointer">
+          <Plus className="w-4 h-4" />
+          <span>New Patient</span>
         </button>
+        </Link>
       </div>
 
       <Suspense fallback={<div className="p-4">Loading patients...</div>}>
@@ -51,7 +72,7 @@ async function PatientsTableWrapper({
 }) {
   const data = await getPatients(searchParams);
   return (
-    <div className="p-4">
+    <div className="mt-4">
       <PatientsTable data={data.patients} paginationData={data.pagination} />
     </div>
   );

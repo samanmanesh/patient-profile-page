@@ -13,7 +13,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,9 +21,6 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -36,12 +33,27 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Patient } from "../types";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-interface PaginationData {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+function ActionsCell({ patient }: { patient: Patient }) {
+  const router = useRouter();
+
+  const handleMoreDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/patients/${patient.id}`);
+  };
+
+  return (
+    <div className="flex items-center gap-2 justify-end">
+      <button
+        onClick={handleMoreDetails}
+        className="text-primary hover:text-primary/80 focus:outline-none focus:ring-0 bg-indigo-100 px-2 py-1 rounded-md text-sm font-medium hover:bg-indigo-200 transition-colors duration-200 hover:cursor-pointer"
+      >
+        More Details
+      </button>
+    </div>
+  );
 }
 
 export const columns: ColumnDef<Patient>[] = [
@@ -67,7 +79,7 @@ export const columns: ColumnDef<Patient>[] = [
   },
   {
     accessorKey: "firstName",
-    header: "Name",
+    header: "First Name",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("firstName")}</div>
     ),
@@ -86,6 +98,7 @@ export const columns: ColumnDef<Patient>[] = [
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="focus:outline-none focus:ring-0"
         >
           <div className="flex items-center gap-2">
             <span className="text-sm">Email</span>
@@ -101,7 +114,6 @@ export const columns: ColumnDef<Patient>[] = [
     header: () => <div className="text-right">Phone Number</div>,
     cell: ({ row }) => {
       const phoneNumber = row.getValue("phoneNumber");
-
       return (
         <div className="text-right font-medium">{phoneNumber as string}</div>
       );
@@ -110,48 +122,22 @@ export const columns: ColumnDef<Patient>[] = [
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
-              Copy payment ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    header: () => <div className="text-right">Actions</div>,
+    cell: ({ row }) => <ActionsCell patient={row.original} />,
   },
 ];
 
 export function PatientsTable({
   data,
-  paginationData,
+  pageCount,
 }: {
   data: Patient[];
-  paginationData: PaginationData;
+  pageCount: number;
 }) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
 
   const table = useReactTable({
     data,
@@ -164,6 +150,7 @@ export function PatientsTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    pageCount,
     state: {
       sorting,
       columnFilters,
@@ -176,18 +163,21 @@ export function PatientsTable({
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
-          placeholder="Search patients..."
-          value={(table.getColumn("firstName")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter patients..."
+          value={
+            (table.getColumn("firstName")?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
             table.getColumn("firstName")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm"
+          className="max-w-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
+            <button className="ml-auto border-none text-sm focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-none flex items-center gap-1 hover:bg-gray-100 rounded-md p-2 cursor-pointer">
+              <span>Columns</span>
+              <ChevronDown className="ml-2 h-4 w-4" />
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table
