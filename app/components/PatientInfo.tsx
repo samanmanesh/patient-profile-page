@@ -69,7 +69,7 @@ const PatientInfo = ({
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium text-[#73726E]">Patient Info</h3>
+        <h3 className="px-2 text-lg font-medium text-[#73726E]">Patient Info</h3>
         <button
           className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
           onClick={() => setIsEditing(!isEditing)}

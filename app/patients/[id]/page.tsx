@@ -9,6 +9,7 @@ import { Reducer, useEffect, useReducer, useState } from "react";
 import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
+import MedicalOverview from "@/app/components/MedicalOverview";
 
 const patientReducer = (
   state: Patient | null,
@@ -65,7 +66,7 @@ export default function PatientDetail() {
     {
       label: "New Memo",
       icon: <PlusIcon className="w-4 h-4" />,
-      isActive: false,
+      isActive: true,
     },
     {
       label: "Doctor Note",
@@ -140,7 +141,7 @@ export default function PatientDetail() {
 
   return (
     <div
-      className="flex flex-col w-full h-screen p-8 items-center relative
+      className="flex flex-col w-full h-screen px-8 py-2 items-center relative
     "
     >
       <div className="flex  items-center justify-center gap-3 h-1/6">
@@ -169,9 +170,18 @@ export default function PatientDetail() {
       />
 
       <div className="w-full h-5/6  flex gap-4 py-4 ">
-        <div className="w-full  overflow-auto">
+        <div className="w-full flex flex-col gap-8 overflow-auto">
           {patient && (
             <PatientInfo
+              patient={patient}
+              dispatch={dispatch}
+              save={savePatient}
+              isLoading={isLoading}
+              saveSuccess={saveSuccess}
+            />
+          )}
+          {patient && (
+            <MedicalOverview
               patient={patient}
               dispatch={dispatch}
               save={savePatient}
