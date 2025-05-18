@@ -10,6 +10,7 @@ import {
   PlusIcon,
   SaveIcon,
   SquarePenIcon,
+  UsersIcon,
 } from "lucide-react";
 import {
   Accordion,
@@ -66,7 +67,7 @@ const VitalsSection = ({
     <div className="flex flex-col gap-2 p-4 w-full ">
       <div className="flex flex-col gap-2 mb-4">
         <h4 className=" font-semibold text-black/80">Vitals / Measurements</h4>
-        <p className="text-sm text-[#73726E] italic">
+        <p className="text-sm text-[#73726E] ">
           Patient&apos;s health measurements
         </p>
       </div>
@@ -74,17 +75,17 @@ const VitalsSection = ({
         {data?.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col justify-between items-start gap-4 p-4  rounded-lg bg-[#fbfbfb]/50 w-full shadow-xs "
+            className="flex flex-col justify-between items-start gap-4 p-4  rounded-lg bg-[#fbfbfb]/50 w-full  border-2 border-[#F1F1F1] "
           >
-            <h5 className="text-sm font-medium  text-nowrap ">
+            <h5 className="text-sm font-bold  text-nowrap ">
               {getKeyLabel(item.type as keyof typeof getKeyLabel)}:
             </h5>
             <div className="flex  gap-2 w-full">
               <Input
                 disabled={!isEditing || isLoading}
                 className={cn(
-                  " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden",
-                  isLoading && "opacity-50 cursor-not-allowed"
+                  " rounded-sm bg-white  text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-stone-400/40  [&::-webkit-calendar-picker-indicator]:hidden ",
+                  isLoading && "opacity-50 cursor-not-allowed border"
                 )}
                 value={item.value ?? ""}
                 onChange={(e) => {
@@ -103,8 +104,8 @@ const VitalsSection = ({
               <Input
                 disabled={!isEditing || isLoading}
                 className={cn(
-                  " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden",
-                  isLoading && "opacity-50 cursor-not-allowed"
+                  " rounded-sm bg-white  text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-stone-400/40  [&::-webkit-calendar-picker-indicator]:hidden ",
+                  isLoading && "opacity-50 cursor-not-allowed border"
                 )}
                 value={item.unit ?? ""}
                 type="select"
@@ -162,15 +163,13 @@ const MedicationsSection = ({
     <div className="flex flex-col gap-2 p-4 w-full ">
       <div className="flex flex-col gap-2 mb-4">
         <h4 className=" font-semibold text-black/80">Medications</h4>
-        <p className="text-sm text-[#73726E] italic">
-          Current and past medications
-        </p>
+        <p className="text-sm text-[#73726E] ">Current and past medications</p>
       </div>
       <div className="flex flex-row justify-between gap-4 w-full flex-wrap ">
         {data?.map((item) => (
           <div
             key={item.id}
-            className="flex flex-col justify-between items-start gap-4 p-4  rounded-lg bg-[#fbfbfb] w-full flex-1 shadow-xs"
+            className="flex flex-col justify-between items-start gap-4 p-4  rounded-lg bg-[#fbfbfb] w-full flex-1 border-2 border-[#F1F1F1] "
           >
             <h4 className="text font-semibold  text-nowrap flex items-center gap-2">
               <PillIcon className="w-6 h-6" /> <span>{item.name}:</span>
@@ -190,8 +189,8 @@ const MedicationsSection = ({
                       <Input
                         disabled={!isEditing || isLoading}
                         className={cn(
-                          " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden ",
-                          isLoading && "opacity-50 cursor-not-allowed"
+                          " rounded-sm bg-white  text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-slate-400/40  [&::-webkit-calendar-picker-indicator]:hidden ",
+                          isLoading && "opacity-50 cursor-not-allowed border"
                         )}
                         value={value ?? ""}
                         onChange={(e) => {
@@ -283,7 +282,7 @@ const MedicalHistorySection = ({
     <div className="flex flex-col gap-2 p-4 w-full">
       <div className="flex flex-col gap-2 mb-4">
         <h4 className=" font-semibold text-black/80">Medical History</h4>
-        <p className="text-sm text-[#73726E] italic">
+        <p className="text-sm text-[#73726E] ">
           Conditions, allergies, and family history
         </p>
       </div>
@@ -330,9 +329,7 @@ const MedicalHistorySection = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#73726E] italic">
-                  No known allergies
-                </p>
+                <p className="text-sm text-[#73726E] ">No known allergies</p>
               )}
             </div>
           </AccordionContent>
@@ -342,7 +339,8 @@ const MedicalHistorySection = ({
         <AccordionItem value="family-history">
           <AccordionTrigger className="font-semibold text-black flex items-center gap-2">
             <div className="flex gap-2">
-              👨‍👩‍👧‍👦 <span>Family History</span>
+              <UsersIcon className="w-4 h-4" />
+              <span>Family History</span>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -375,7 +373,7 @@ const MedicalHistorySection = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#73726E] italic">
+                <p className="text-sm text-[#73726E] ">
                   No significant family history
                 </p>
               )}
@@ -387,7 +385,8 @@ const MedicalHistorySection = ({
         <AccordionItem value="medical-history">
           <AccordionTrigger className="font-semibold text-black/80 flex items-center gap-2">
             <div className="flex gap-2">
-              📋 <span>Medical History</span>
+              <FileTextIcon className="w-4 h-4" />
+              <span>Medical History</span>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -420,7 +419,7 @@ const MedicalHistorySection = ({
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-[#73726E] italic">
+                <p className="text-sm text-[#73726E] ">
                   No significant medical history
                 </p>
               )}
