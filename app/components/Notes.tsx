@@ -19,7 +19,6 @@ type NotesProps = {
   onChooseActions: (action: string) => void;
 };
 
-// Type guard to check if a note is a DoctorNote
 const isDoctorNote = (note: DoctorNote | Memo): note is DoctorNote => {
   return (note as DoctorNote).content !== undefined;
 };
