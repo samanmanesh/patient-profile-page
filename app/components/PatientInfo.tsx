@@ -69,7 +69,9 @@ const PatientInfo = ({
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="flex justify-between items-center">
-        <h3 className="px-2 text-lg font-medium text-[#73726E]">Patient Info</h3>
+        <h3 className="px-2 text-lg font-medium text-[#73726E]">
+          Patient Info
+        </h3>
         <button
           className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
           onClick={() => setIsEditing(!isEditing)}
@@ -106,7 +108,7 @@ const PatientInfo = ({
                   }}
                   disabled={!isEditing || isLoading}
                   className={cn(
-                    " rounded-sm bg-white text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-stone-500/40 disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden border-2 border-stone-400",
+                    " rounded-sm bg-white text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-stone-400/40 disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden border-2 border-stone-400",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
                 />

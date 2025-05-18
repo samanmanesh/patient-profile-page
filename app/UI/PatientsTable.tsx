@@ -48,7 +48,7 @@ function ActionsCell({ patient }: { patient: Patient }) {
     <div className="flex items-center gap-2 justify-end">
       <button
         onClick={handleMoreDetails}
-        className="text-primary hover:text-primary/80 focus:outline-none focus:ring-0 bg-indigo-100 px-2 py-1 rounded-md text-sm font-medium hover:bg-indigo-200 transition-colors duration-200 hover:cursor-pointer"
+        className=" hover:text-white/80 focus:outline-none focus:ring-0 bg-emerald-950 text-white px-2 py-1 rounded-lg text-sm font-medium hover:bg-emerald-950/80 transition-colors duration-200 hover:cursor-pointer"
       >
         More Details
       </button>

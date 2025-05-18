@@ -10,13 +10,7 @@ type Props = {
   name?: string;
   type?: "rounded" | "square";
   onClick?: () => void;
-  bgColor?: string;
 };
-
-const colors = [
-  { textColor: "#73726E", backgroundColor: "#EBEBE8" },
-  { textColor: "#73726E", backgroundColor: "#EBEBE8" },
-];
 
 const Avatar = ({
   src,
@@ -26,7 +20,6 @@ const Avatar = ({
   name,
   type = "square",
   onClick,
-  bgColor,
 }: Props) => {
   return (
     <div
@@ -40,11 +33,6 @@ const Avatar = ({
         size === "lg" && "w-12 h-12",
         size === "xl" && "w-14 h-14"
       )}
-      style={{
-        backgroundColor:
-          bgColor ||
-          colors[Math.floor(Math.random() * colors.length)].backgroundColor,
-      }}
       onClick={onClick}
     >
       {src ? (

@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Avatar from "../UI/Avatar";
-import { HomeIcon, UsersRound } from "lucide-react";
+import { UsersRound } from "lucide-react";
 import { cn } from "../utils";
 
 const Sidebar = () => {
@@ -11,11 +10,6 @@ const Sidebar = () => {
   const router = useRouter();
 
   const navItems = [
-    {
-      name: "Home",
-      icon: HomeIcon,
-      path: "/",
-    },
     {
       name: "Patients",
       icon: UsersRound,
@@ -31,14 +25,21 @@ const Sidebar = () => {
           fallback="D"
           size="sm"
           onClick={() => router.push("/")}
+          className="bg-stone-900/90 rounded-lg text-white"
+          
         />
-        <h1 className="text-lg font-semibold cursor-pointer" onClick={() => router.push("/")}>
+        <h1
+          className="text-lg font-semibold cursor-pointer"
+          onClick={() => router.push("/")}
+        >
           Decoda Health
         </h1>
       </div>
       <div className="flex flex-col gap-2 mt-20">
         {navItems.map((item) => {
-          const isActive = pathname === item.path || (pathname.includes(item.path) && item.path !== "/");
+          const isActive =
+            pathname === item.path ||
+            (pathname.includes(item.path) && item.path !== "/");
           return (
             <button
               key={item.path}

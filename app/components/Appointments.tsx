@@ -1,4 +1,4 @@
-import { useState, useEffect, Dispatch } from "react";
+import { useState, useEffect } from "react";
 import { Patient } from "../types/patient";
 import { Event } from "../types/event";
 import { eventsService } from "../services/eventsService";
@@ -8,25 +8,9 @@ import { format, parseISO } from "date-fns";
 
 interface AppointmentsProps {
   patient: Patient;
-  dispatch: Dispatch<{
-    type: string;
-    payload:
-      | Partial<Patient>
-      | Patient
-      | { field: keyof Patient; value: string; subField?: keyof Patient };
-  }>;
-  save: () => Promise<void>;
-  isLoading: boolean;
-  saveSuccess: boolean;
 }
 
-export default function Appointments({
-  patient,
-  dispatch,
-  save,
-  isLoading,
-  saveSuccess,
-}: AppointmentsProps) {
+export default function Appointments({ patient }: AppointmentsProps) {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -155,10 +139,10 @@ export default function Appointments({
           Appointments
         </h3>
         <button
-          className="flex items-center "
+          className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 font-medium text-black/60 "
           onClick={() => setShowNewAppointmentDialog(true)}
         >
-          <Plus className="w-4 h-4 mr-1" />
+          <Plus className="w-4 h-4 " />
           New Appointment
         </button>
       </div>
@@ -169,7 +153,6 @@ export default function Appointments({
         </div>
       )}
 
-      {/* Simple modal for creating appointments */}
       {showNewAppointmentDialog && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
@@ -296,11 +279,14 @@ export default function Appointments({
       )}
 
       <div className="p-4 gap-12 rounded-lg border-2 border-[#F1F1F1] w-full  flex flex-col">
-        {/* Upcoming Appointments */}
         <div className="flex flex-col gap-2">
-        <h3 className="px-2 text-lg font-medium text-[#73726E]">Upcoming Appointments</h3>
+          <h3 className="px-2 text-lg font-medium text-[#73726E]">
+            Upcoming Appointments
+          </h3>
           {upcomingEvents.length === 0 ? (
-            <p className="text-gray-500 text-center">No upcoming appointments</p>
+            <p className="text-gray-500 text-center">
+              No upcoming appointments
+            </p>
           ) : (
             <div className="space-y-4">
               {upcomingEvents.map((event) => (
@@ -367,7 +353,6 @@ export default function Appointments({
           )}
         </div>
 
-        {/* Past Appointments */}
         <div className="flex flex-col gap-2">
           <h3 className="px-2 text-lg font-medium text-[#73726E]">
             Past Appointments

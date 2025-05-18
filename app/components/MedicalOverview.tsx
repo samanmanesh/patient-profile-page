@@ -39,10 +39,6 @@ type MedicalOverviewProps = {
 };
 
 type Vitals = Partial<Patient>["measurements"];
-type MedicalHistory = Pick<
-  Patient,
-  "medicalHistory" | "allergies" | "familyHistory"
->;
 
 const VitalsSection = ({
   data,
@@ -240,7 +236,6 @@ const MedicalHistorySection = ({
   isEditing: boolean;
 }) => {
   const { allergies, familyHistory, medicalHistory } = data.patient ?? {};
-  const { doctorsNotes } = data;
 
   const randomTailwindColor = () => {
     const colors = [
@@ -523,7 +518,7 @@ const MedicalOverview = ({
           </h3>
           <div className="flex gap-2">
             <button
-              className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
+              className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 font-medium text-black/60 "
               onClick={() => onChooseActions("Doctor Note")}
             >
               <PlusIcon className="w-4 h-4" />

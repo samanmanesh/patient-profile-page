@@ -98,7 +98,7 @@ export default function PatientDetail() {
     label: string;
     icon: React.ReactNode;
     isActive: boolean;
-    }) => {
+  }) => {
     if (action.isActive) {
       setActions(actions.map((a) => ({ ...a, isActive: false })));
     } else {
@@ -132,10 +132,18 @@ export default function PatientDetail() {
 
   if (patientId === "new") {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
+      <div className="flex flex-col items-center justify-center h-full gap-4 relative">
+        <div className="absolute top-8 left-8 hidden lg:block">
+        <BreadcrumbNavigator
+          breadcrumbs={[
+            { label: "Patients", href: "/patients" },
+            { label: "New Patient", href: "/patients/new" },
+          ]}
+        />
+        </div>
         <h1 className="text-3xl font-bold text-center">New Patient</h1>
         <div className="text-center text-gray-500 text-lg">
-          Feature Will Be Added Soon ...
+          Feature will be added soon ...
         </div>
       </div>
     );
@@ -168,7 +176,7 @@ export default function PatientDetail() {
 
   // Create a wrapper function that converts string to object format
   const handleMedicalActionChoice = (action: string) => {
-    const actionObj = actions.find(a => a.label === action);
+    const actionObj = actions.find((a) => a.label === action);
     if (actionObj) {
       onChooseActions(actionObj);
     }
@@ -211,10 +219,8 @@ export default function PatientDetail() {
       component: (
         <Appointments
           patient={patient as Patient}
-          dispatch={dispatch}
-          save={savePatient}
-          isLoading={isLoading}
-          saveSuccess={saveSuccess}
+          
+          
         />
       ),
     },
@@ -226,10 +232,12 @@ export default function PatientDetail() {
     {
       label: "Notes",
       value: "notes",
-      component: <Notes 
+      component: (
+        <Notes
           patient={patient as Patient}
           onChooseActions={handleMedicalActionChoice}
-      />,
+        />
+      ),
     },
     {
       label: "Alerts",
@@ -238,19 +246,16 @@ export default function PatientDetail() {
     },
   ];
 
-  
-
   return (
     <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
       <div className="flex  items-center justify-center gap-3 h-1/12">
         <Avatar
           name={getPatientName()}
-          size="xl"
+          size="lg"
           type="rounded"
-          className="text-3xl font-semibold  border text-black"
-          bgColor="#ffffff"
+          className="text-2xl font-semibold border-2 text-black bg-white "
         />
-        <h1 className="text-3xl font-medium">{getPatientName()}</h1>
+        <h1 className="text-2xl font-medium">{getPatientName()}</h1>
       </div>
 
       <BreadcrumbNavigator
