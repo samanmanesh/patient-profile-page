@@ -29,10 +29,10 @@ const writePatientsToFile = (patients: Patient[]): boolean => {
 };
 
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  _request: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const id = await context.params.then(params => params.id);
   const patients = readPatientsFromFile();
   const patient = patients.find((patient) => patient.id === id);
   if (!patient) {
@@ -43,9 +43,9 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const id = await context.params.then(params => params.id);
   const patients = readPatientsFromFile();
   const patientIndex = patients.findIndex((patient) => patient.id === id);
 
@@ -83,10 +83,10 @@ export async function PUT(
 
 // DELETE /api/patients/[id] - Delete a patient
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  _request: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = params;
+  const id = await context.params.then(params => params.id);
   const patients = readPatientsFromFile();
   const patientIndex = patients.findIndex((patient) => patient.id === id);
 

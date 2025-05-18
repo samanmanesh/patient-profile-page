@@ -15,7 +15,7 @@ export function getKeyLabel(key: string) {
 }
 
 
-export function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: unknown[]) => unknown>(func: T, delay: number): (...args: Parameters<T>) => void {
   let timeout: NodeJS.Timeout;
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);

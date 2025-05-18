@@ -20,9 +20,9 @@ function readNotes() {
 // GET notes by patient ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  context: { params: Promise<{ patientId: string }> }
 ) {
-  const patientId = params.patientId;
+  const patientId = await context.params.then(params => params.patientId);
   const notesData = readNotes();
   const notes = notesData.data || [];
 

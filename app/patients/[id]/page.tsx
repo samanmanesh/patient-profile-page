@@ -5,7 +5,7 @@ import { Patient } from "@/app/types/patient";
 import Avatar from "@/app/UI/Avatar";
 import BreadcrumbNavigator from "@/app/UI/BreadcrumbNavigator";
 import { useParams } from "next/navigation";
-import { Reducer, useEffect, useReducer, useState } from "react";
+import { Reducer, useEffect, useReducer, useState, useCallback } from "react";
 import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
@@ -92,7 +92,10 @@ export default function PatientDetail() {
       isActive: false,
     },
   ]);
-  const { getNotesByPatientId } = notesService;
+  const getNotesByPatientId = useCallback(
+    (id: string) => notesService.getNotesByPatientId(id),
+    []
+  );
 
   const onChooseActions = (action: {
     label: string;
@@ -109,26 +112,26 @@ export default function PatientDetail() {
   };
 
   useEffect(() => {
-    if (!patientId) return;
-    setIsLoading(true);
     const getPatient = async () => {
+      setIsLoading(true);
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}`
       );
       const data = await res.json();
+      console.log("patient data", data);
       dispatch({ type: "setPatient", payload: data });
       setIsLoading(false);
     };
     console.log("patientId", patientId);
     getPatient();
     getNotesByPatientId(patientId as string)
-      .then((notes) => {
+      .then((notes: DoctorNote[]) => {
         setNotes(notes);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Error fetching notes:", error);
       });
-  }, [patientId]);
+  }, [patientId, getNotesByPatientId]);
 
   if (patientId === "new") {
     return (

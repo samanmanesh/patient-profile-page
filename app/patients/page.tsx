@@ -5,6 +5,11 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import BreadcrumbNavigator from "../UI/BreadcrumbNavigator";
 
+interface PageParams {
+  searchParams: Promise<{
+    [key: string]: string | string[] | undefined;
+  }>;
+}
 
 async function getPatients(searchParams: {
   [key: string]: string | string[] | undefined;
@@ -27,11 +32,9 @@ async function getPatients(searchParams: {
   return res.json();
 }
 
-export default function PatientsPage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+export default async function PatientsPage({ searchParams }: PageParams) {
+  const params = await searchParams;
+  
   return (
     <div className="p-8">
       <div className="flex justify-between items-center ">
@@ -47,7 +50,7 @@ export default function PatientsPage({
       </div>
 
       <Suspense fallback={<div className="p-4">Loading patients...</div>}>
-        <PatientsTableWrapper searchParams={searchParams} />
+        <PatientsTableWrapper searchParams={params} />
       </Suspense>
     </div>
   );

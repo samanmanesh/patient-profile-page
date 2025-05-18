@@ -20,13 +20,14 @@ const getAlerts = (): AlertsResponse => {
 // GET handler - Get alerts by patient ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  context: { params: Promise<{ patientId: string }> }
 ) {
   try {
+    const patientId = await context.params.then(params => params.patientId);
     const alerts = getAlerts();
     // Filter alerts where patient.id matches the patientId parameter
     const patientAlerts = alerts.data.filter((alert) => {
-      return alert.patient && alert.patient.id === params.patientId;
+      return alert.patient && alert.patient.id === patientId;
     });
 
     return NextResponse.json({

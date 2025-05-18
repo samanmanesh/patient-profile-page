@@ -30,9 +30,9 @@ function writeNotes(notes: DoctorNote[]) {
 // GET a note by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const noteId = params.id;
+  const noteId = await context.params.then(params => params.id);
   const notes = readNotes();
   
   const note = notes.find((note: DoctorNote) => note.id === noteId);
@@ -50,10 +50,10 @@ export async function GET(
 // UPDATE a note
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const noteId = params.id;
+    const noteId = await context.params.then(params => params.id);
     const body = await request.json();
     const notes = readNotes();
     
@@ -103,9 +103,9 @@ export async function PUT(
 // DELETE a note
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const noteId = params.id;
+  const noteId = await context.params.then(params => params.id);
   const notes = readNotes();
   
   const index = notes.findIndex((note: DoctorNote) => note.id === noteId);

@@ -67,8 +67,8 @@
         }
       },
       "createdDate": "2024-03-01T16:45:00Z",
-      "actionRequired": true,
-      "resolvedDate": null,
+      "actionRequired": false,
+      "resolvedDate": "2025-05-18T19:51:32.081Z",
       "tags": [
         {
           "id": "tag_7c6d5e4f3g",
@@ -81,7 +81,12 @@
         "lastName": "Chen",
         "email": "emily.chen@decodahealth.com"
       },
-      "resolvingProvider": null,
+      "resolvingProvider": {
+        "id": "usr_4d5e6f7g8h9i0j1k2l",
+        "firstName": "Emily",
+        "lastName": "Chen",
+        "email": "emily.chen@decodahealth.com"
+      },
       "occurances": 1,
       "patient": {
         "id": "pt_5f8a92a3eb28c15dc7a9a3d1",

@@ -31,9 +31,9 @@ function writeEvents(events: Event[]) {
 // GET specific event by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const eventId = params.id;
+  const eventId = await context.params.then(params => params.id);
   const events = readEvents();
   
   const event = events.find((event: Event) => event.id === eventId);
@@ -51,9 +51,9 @@ export async function GET(
 // PUT - Update an event
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const eventId = params.id;
+  const eventId = await context.params.then(params => params.id);
   const body = await request.json();
   const events = readEvents();
   
@@ -90,9 +90,9 @@ export async function PUT(
 // DELETE an event
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const eventId = params.id;
+  const eventId = await context.params.then(params => params.id);
   const events = readEvents();
   
   const filteredEvents = events.filter((event: Event) => event.id !== eventId);

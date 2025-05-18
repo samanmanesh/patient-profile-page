@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Patient } from "../types/patient";
 import { PaymentMethod, Charge } from "../types/billing";
 import { billingService } from "../services/billingService";
@@ -15,13 +15,7 @@ const Billing = ({ patient }: Props) => {
   const [charges, setCharges] = useState<Charge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (patient?.id) {
-      loadBillingData();
-    }
-  }, [patient]);
-
-  const loadBillingData = async () => {
+  const loadBillingData = useCallback(async () => {
     setIsLoading(true);
     try {
       console.log("Loading billing data for patient ID:", patient.id);
@@ -41,7 +35,13 @@ const Billing = ({ patient }: Props) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [patient.id]);
+
+  useEffect(() => {
+    if (patient?.id) {
+      loadBillingData();
+    }
+  }, [patient, loadBillingData]);
 
   const formatExpirationDate = (expYear: number, expMonth: number) => {
     const date = new Date(expYear, expMonth - 1);

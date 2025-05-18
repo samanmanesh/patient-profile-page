@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import { Patient } from "../types/patient";
 import { CreditCard, MessageSquare, NotebookPen } from "lucide-react";
 import { memoService } from "../services/memoService";
@@ -304,13 +304,7 @@ const PaymentForm = ({
   const [loading, setLoading] = useState(false);
   const [loadingMethods, setLoadingMethods] = useState(false);
 
-  React.useEffect(() => {
-    if (patient) {
-      loadPaymentMethods();
-    }
-  }, [patient]);
-
-  const loadPaymentMethods = async () => {
+  const loadPaymentMethods = useCallback(async () => {
     if (!patient) return;
 
     setLoadingMethods(true);
@@ -327,7 +321,13 @@ const PaymentForm = ({
     } finally {
       setLoadingMethods(false);
     }
-  };
+  }, [patient]);
+
+  useEffect(() => {
+    if (patient) {
+      loadPaymentMethods();
+    }
+  }, [patient, loadPaymentMethods]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -29,11 +29,12 @@ const saveMemos = (memos: Memo[]): void => {
 // GET handler - Get a memo by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = await context.params.then(params => params.id);
     const memos = getMemos();
-    const memo = memos.find((memo) => memo.id === params.id);
+    const memo = memos.find((memo) => memo.id === id);
 
     if (!memo) {
       return NextResponse.json(
@@ -55,12 +56,13 @@ export async function GET(
 // PUT handler - Update a memo by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = await context.params.then(params => params.id);
     const memoData = await request.json();
     const memos = getMemos();
-    const index = memos.findIndex((memo) => memo.id === params.id);
+    const index = memos.findIndex((memo) => memo.id === id);
 
     if (index === -1) {
       return NextResponse.json(
@@ -73,7 +75,7 @@ export async function PUT(
     const updatedMemo = {
       ...memos[index],
       ...memoData,
-      id: params.id,
+      id: id,
       updatedDate: new Date().toISOString()
     };
 
@@ -93,11 +95,12 @@ export async function PUT(
 // DELETE handler - Delete a memo by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const id = await context.params.then(params => params.id);
     const memos = getMemos();
-    const updatedMemos = memos.filter((memo) => memo.id !== params.id);
+    const updatedMemos = memos.filter((memo) => memo.id !== id);
 
     if (updatedMemos.length === memos.length) {
       return NextResponse.json(

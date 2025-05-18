@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Patient } from "../types/patient";
 import { Event } from "../types/event";
 import { eventsService } from "../services/eventsService";
@@ -26,14 +26,7 @@ export default function Appointments({ patient }: AppointmentsProps) {
     providerName: "",
   });
 
-  // Load patient's events on component mount
-  useEffect(() => {
-    if (patient?.id) {
-      loadEvents();
-    }
-  }, [patient?.id]);
-
-  const loadEvents = async () => {
+  const loadEvents = useCallback(async () => {
     setLoading(true);
     try {
       const patientEvents = await eventsService.getEventsByPatientId(
@@ -47,7 +40,14 @@ export default function Appointments({ patient }: AppointmentsProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [patient.id]);
+
+  // Load patient's events on component mount
+  useEffect(() => {
+    if (patient?.id) {
+      loadEvents();
+    }
+  }, [patient?.id, loadEvents]);
 
   const handleCreateAppointment = async () => {
     if (

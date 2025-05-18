@@ -20,13 +20,14 @@ const getMemos = (): Memo[] => {
 // GET handler - Get memos by patient ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { patientId: string } }
+  context: { params: Promise<{ patientId: string }> }
 ) {
   try {
+    const patientId = await context.params.then(params => params.patientId);
     const memos = getMemos();
     // Filter memos where patient.id matches the patientId parameter
     const patientMemos = memos.filter((memo) => {
-      return memo.patient && memo.patient.id === params.patientId;
+      return memo.patient && memo.patient.id === patientId;
     });
 
     return NextResponse.json(patientMemos);

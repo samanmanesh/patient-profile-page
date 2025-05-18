@@ -29,12 +29,13 @@ const saveAlerts = (alerts: AlertsResponse): void => {
 // POST handler - Resolve an alert
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { resolvingProviderId, resolvedDate } = await request.json();
     const alerts = getAlerts();
-    const index = alerts.data.findIndex((alert) => alert.id === params.id);
+    const id = await context.params.then(params => params.id);
+    const index = alerts.data.findIndex((alert) => alert.id === id);
 
     if (index === -1) {
       return NextResponse.json(

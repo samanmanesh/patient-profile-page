@@ -29,11 +29,12 @@ const saveAlerts = (alerts: AlertsResponse): void => {
 // GET handler - Get an alert by ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const alerts = getAlerts();
-    const alert = alerts.data.find((alert) => alert.id === params.id);
+    const id = await context.params.then(params => params.id);
+    const alert = alerts.data.find((alert) => alert.id === id);
 
     if (!alert) {
       return NextResponse.json(
@@ -55,12 +56,13 @@ export async function GET(
 // PUT handler - Update an alert by ID
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const alertData = await request.json();
     const alerts = getAlerts();
-    const index = alerts.data.findIndex((alert) => alert.id === params.id);
+    const id = await context.params.then(params => params.id);
+    const index = alerts.data.findIndex((alert) => alert.id === id);
 
     if (index === -1) {
       return NextResponse.json(
@@ -73,7 +75,7 @@ export async function PUT(
     const updatedAlert = {
       ...alerts.data[index],
       ...alertData,
-      id: params.id,
+      id: id,
     };
 
     alerts.data[index] = updatedAlert;
@@ -92,11 +94,12 @@ export async function PUT(
 // DELETE handler - Delete an alert by ID
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const alerts = getAlerts();
-    const filteredAlerts = alerts.data.filter((alert) => alert.id !== params.id);
+    const id = await context.params.then(params => params.id);
+    const filteredAlerts = alerts.data.filter((alert) => alert.id !== id);
 
     if (filteredAlerts.length === alerts.data.length) {
       return NextResponse.json(
