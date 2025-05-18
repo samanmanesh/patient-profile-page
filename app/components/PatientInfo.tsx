@@ -106,7 +106,7 @@ const PatientInfo = ({
                   }}
                   disabled={!isEditing || isLoading}
                   className={cn(
-                    " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden",
+                    " rounded-sm bg-white text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-stone-500/40 disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden border-2 border-stone-400",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
                 />
