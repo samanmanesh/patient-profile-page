@@ -138,6 +138,7 @@ export function PatientsTable({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const router = useRouter();
 
   const table = useReactTable({
     data,
@@ -226,6 +227,9 @@ export function PatientsTable({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => {
+                    router.push(`/patients/${row.original.id}`);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

@@ -1,4 +1,5 @@
 import { Event } from '../types/event';
+import events from '../services/data/events.json';
 
 class EventsService {
   /**
@@ -6,11 +7,7 @@ class EventsService {
    */
   async getAllEvents(): Promise<Event[]> {
     try {
-      const response = await fetch('/data/events.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      return await response.json();
+      return events as unknown as Event[];
     } catch (error) {
       console.error('Error getting events:', error);
       return [];
@@ -22,12 +19,7 @@ class EventsService {
    */
   async getEventById(id: string): Promise<Event | null> {
     try {
-      const response = await fetch('/data/events.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const events: Event[] = await response.json();
-      return events.find(event => event.id === id) || null;
+      return events.find((event) => event.id === id) as unknown as Event | null;
     } catch (error) {
       console.error(`Error getting event ${id}:`, error);
       return null;
@@ -39,14 +31,10 @@ class EventsService {
    */
   async getEventsByPatientId(patientId: string): Promise<Event[]> {
     try {
-      const response = await fetch('/data/events.json');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch events for patient ${patientId}`);
-      }
-      const events: Event[] = await response.json();
+      const eventsData = events as unknown as Event[];
       
       // Filter events for the specific patient
-      return events.filter(event => 
+      return eventsData.filter(event => 
         event.attendees.some(attendee => 
           attendee.user.id === patientId
         )
@@ -82,12 +70,8 @@ class EventsService {
   async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
     try {
       // Get the current event
-      const response = await fetch('/data/events.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const events: Event[] = await response.json();
-      const existingEvent = events.find(event => event.id === id);
+      const eventsData = events as unknown as Event[];
+      const existingEvent = eventsData.find(event => event.id === id);
       
       if (!existingEvent) {
         throw new Error(`Event not found: ${id}`);

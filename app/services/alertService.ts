@@ -1,18 +1,15 @@
 import { Alert, AlertsResponse } from "../types/alert";
 import { ID } from "../types/common";
+import alertsData from '../services/data/alerts.json';
 
 export const alertService = {
   // Get all alerts
   getAllAlerts: async (): Promise<Alert[]> => {
     try {
-      const response = await fetch('/data/alerts.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch alerts');
-      }
-      const alertsResponse: AlertsResponse = await response.json();
+      const alertsResponse = alertsData as AlertsResponse;
       return alertsResponse.data;
     } catch (error) {
-      console.error("Error fetching alerts:", error);
+      console.error("Error getting alerts:", error);
       return [];
     }
   },
@@ -20,11 +17,7 @@ export const alertService = {
   // Get an alert by ID
   getAlertById: async (id: ID): Promise<Alert | null> => {
     try {
-      const response = await fetch('/data/alerts.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch alerts');
-      }
-      const alertsResponse: AlertsResponse = await response.json();
+      const alertsResponse = alertsData as AlertsResponse;
       const alert = alertsResponse.data.find(alert => alert.id === id);
       
       if (!alert) {
@@ -33,7 +26,7 @@ export const alertService = {
       
       return alert;
     } catch (error) {
-      console.error("Error fetching alert:", error);
+      console.error("Error getting alert:", error);
       return null;
     }
   },
@@ -41,14 +34,10 @@ export const alertService = {
   // Get alerts by patient ID
   getAlertsByPatientId: async (patientId: ID): Promise<Alert[]> => {
     try {
-      const response = await fetch('/data/alerts.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch patient alerts');
-      }
-      const alertsResponse: AlertsResponse = await response.json();
+      const alertsResponse = alertsData as AlertsResponse;
       return alertsResponse.data.filter(alert => alert.patient.id === patientId);
     } catch (error) {
-      console.error("Error fetching patient alerts:", error);
+      console.error("Error getting patient alerts:", error);
       return []; // Return empty array if there's an error
     }
   },
@@ -86,11 +75,7 @@ export const alertService = {
   resolveAlert: async (id: ID, providerId: ID): Promise<Alert> => {
     try {
       // Get the current alert
-      const response = await fetch('/data/alerts.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch alerts');
-      }
-      const alertsResponse: AlertsResponse = await response.json();
+      const alertsResponse = alertsData as AlertsResponse;
       const alert = alertsResponse.data.find(a => a.id === id);
       
       if (!alert) {

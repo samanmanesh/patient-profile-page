@@ -1,17 +1,14 @@
 import { Memo } from "../types/memos";
 import { ID } from "../types/common";
+import memos from '../services/data/memos.json';
 
 export const memoService = {
   // Get all memos
   getAllMemos: async (): Promise<Memo[]> => {
     try {
-      const response = await fetch('/data/memos.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch memos');
-      }
-      return response.json();
+      return memos as Memo[];
     } catch (error) {
-      console.error("Error fetching memos:", error);
+      console.error("Error getting memos:", error);
       return [];
     }
   },
@@ -19,12 +16,7 @@ export const memoService = {
   // Get a memo by ID
   getMemoById: async (id: ID): Promise<Memo | null> => {
     try {
-      const response = await fetch('/data/memos.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch memos');
-      }
-      const memos: Memo[] = await response.json();
-      const memo = memos.find(memo => memo.id === id);
+      const memo = (memos as Memo[]).find((memo: Memo) => memo.id === id);
       
       if (!memo) {
         throw new Error('Memo not found');
@@ -32,7 +24,7 @@ export const memoService = {
       
       return memo;
     } catch (error) {
-      console.error("Error fetching memo:", error);
+      console.error("Error getting memo:", error);
       return null;
     }
   },
@@ -40,14 +32,9 @@ export const memoService = {
   // Get memos by patient ID
   getMemosByPatientId: async (patientId: ID): Promise<Memo[]> => {
     try {
-      const response = await fetch('/data/memos.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch patient memos');
-      }
-      const memos: Memo[] = await response.json();
-      return memos.filter(memo => memo.patient.id === patientId);
+      return (memos as Memo[]).filter((memo: Memo) => memo.patient.id === patientId);
     } catch (error) {
-      console.error("Error fetching patient memos:", error);
+      console.error("Error getting patient memos:", error);
       return []; // Return empty array if there's an error
     }
   },
@@ -69,12 +56,7 @@ export const memoService = {
   updateMemo: async (id: ID, memo: Partial<Memo>): Promise<Memo> => {
     try {
       // Get the current memo
-      const response = await fetch('/data/memos.json');
-      if (!response.ok) {
-        throw new Error('Failed to fetch memos');
-      }
-      const memos: Memo[] = await response.json();
-      const existingMemo = memos.find(m => m.id === id);
+      const existingMemo = (memos as Memo[]).find((m: Memo) => m.id === id);
       
       if (!existingMemo) {
         throw new Error('Memo not found');

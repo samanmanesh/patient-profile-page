@@ -1,23 +1,19 @@
 import { PaymentMethod, Charge } from '../types/billing';
+import paymentMethods from '../services/data/payment_methods.json';
+import charges from '../services/data/charges.json';
 
 class BillingService {
   // Payment Methods
   async getPatientPaymentMethods(patientId: string): Promise<PaymentMethod[]> {
     try {
-      console.log(`Fetching payment methods for patient: ${patientId}`);
-      const response = await fetch('/data/payment_methods.json');
+      console.log(`Getting payment methods for patient: ${patientId}`);
       
-      if (!response.ok) {
-        console.error(`Failed to fetch payment methods: ${response.status} ${response.statusText}`);
-        return [];
-      }
-      
-      const data: PaymentMethod[] = await response.json();
+      const data = paymentMethods as PaymentMethod[];
       const patientPaymentMethods = data.filter(pm => pm.patientId === patientId);
-      console.log(`Received ${patientPaymentMethods.length} payment methods`);
+      console.log(`Retrieved ${patientPaymentMethods.length} payment methods`);
       return patientPaymentMethods;
     } catch (error) {
-      console.error('Error fetching payment methods:', error);
+      console.error('Error getting payment methods:', error);
       return [];
     }
   }
@@ -25,22 +21,18 @@ class BillingService {
   // Charges
   async getPatientCharges(patientId: string): Promise<Charge[]> {
     try {
-      console.log(`Fetching charges for patient: ${patientId}`);
-      const response = await fetch('/data/charges.json');
+      console.log(`Getting charges for patient: ${patientId}`);
       
-      if (!response.ok) {
-        console.error(`Failed to fetch charges: ${response.status} ${response.statusText}`);
-        return [];
-      }
+      const data = (charges.data || []) as Charge[];
       
-      const chargesResponse = await response.json();
-      const data = chargesResponse.data || [];
+      const patientCharges = data.filter((charge: Charge) => 
+        charge.patient && charge.patient.id === patientId
+      ) as Charge[];
       
-      const patientCharges = data.filter((charge: Charge) => charge.patient && charge.patient.id === patientId);
-      console.log(`Received ${patientCharges.length} charges`);
+      console.log(`Retrieved ${patientCharges.length} charges`);
       return patientCharges;
     } catch (error) {
-      console.error('Error fetching charges:', error);
+      console.error('Error getting charges:', error);
       return [];
     }
   }

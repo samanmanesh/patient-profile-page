@@ -5,77 +5,82 @@ import { Patient } from "@/app/types/patient";
 import Avatar from "@/app/UI/Avatar";
 import BreadcrumbNavigator from "@/app/UI/BreadcrumbNavigator";
 import { useParams } from "next/navigation";
-import { Reducer, useEffect, useReducer, useState, useCallback } from "react";
+import { useEffect, useReducer, useState, useCallback, Dispatch } from "react";
 import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 import MedicalOverview from "@/app/components/MedicalOverview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notesService } from "@/app/services/notesService";
+import { patientService } from "@/app/services/patientService";
 import { DoctorNote } from "@/app/types/note";
 import Appointments from "@/app/components/Appointments";
 import Billing from "@/app/components/Billing";
 import Notes from "@/app/components/Notes";
 import Alerts from "@/app/components/Alerts";
 
+// Define the action type to match what child components expect
+type PatientActionPayload = 
+  | Partial<Patient>
+  | Patient
+  | { field: keyof Patient; value: string; subField?: keyof Patient };
+
+type PatientAction = {
+  type: string;
+  payload: PatientActionPayload;
+};
+
+// Improved reducer with better typing
 const patientReducer = (
   state: Patient | null,
-  action: {
-    type: string;
-    payload:
-      | Partial<Patient>
-      | Patient
-      | { field: keyof Patient; value: string; subField?: keyof Patient };
-  }
-) => {
+  action: PatientAction
+): Patient | null => {
   switch (action.type) {
     case "setPatient":
       return action.payload as Patient;
 
     case "updatePatientField":
+      if (!state) return null;
+      
       if ("field" in action.payload && "value" in action.payload) {
         return {
           ...state,
           [action.payload.field]: action.payload.value,
-          ...(action.payload.subField &&
-            state &&
-            action.payload.subField in state && {
-              [action.payload.subField]: action.payload.value,
-            }),
-        } as Patient;
+          ...(action.payload.subField && {
+            [action.payload.subField]: action.payload.value,
+          }),
+        };
       }
       return state;
     default:
       return state;
   }
 };
+
+// Type for quick actions
+type QuickAction = {
+  label: string;
+  icon: React.ReactNode;
+  isActive: boolean;
+};
+
 export default function PatientDetail() {
   const params = useParams();
-  const patientId = params.id;
-  const [patient, dispatch] = useReducer(
-    patientReducer as Reducer<
-      Patient | null,
-      {
-        type: string;
-        payload:
-          | Partial<Patient>
-          | Patient
-          | { field: keyof Patient; value: string; subField?: keyof Patient };
-      }
-    >,
-    null
-  );
+  const patientId = typeof params.id === 'string' ? params.id : '';
+  
+  // Fixed reducer typing to match child component expectations
+  const [patient, dispatch] = useReducer(patientReducer, null) as [
+    Patient | null,
+    Dispatch<PatientAction>
+  ];
+  
   const [notes, setNotes] = useState<DoctorNote[]>([]);
-
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [actions, setActions] = useState<
-    {
-      label: string;
-      icon: React.ReactNode;
-      isActive: boolean;
-    }[]
-  >([
+  
+  // Typed actions state
+  const [actions, setActions] = useState<QuickAction[]>([
     {
       label: "New Memo",
       icon: <PlusIcon className="w-4 h-4" />,
@@ -92,16 +97,13 @@ export default function PatientDetail() {
       isActive: false,
     },
   ]);
+  
   const getNotesByPatientId = useCallback(
     (id: string) => notesService.getNotesByPatientId(id),
     []
   );
 
-  const onChooseActions = (action: {
-    label: string;
-    icon: React.ReactNode;
-    isActive: boolean;
-  }) => {
+  const onChooseActions = (action: QuickAction) => {
     if (action.isActive) {
       setActions(actions.map((a) => ({ ...a, isActive: false })));
     } else {
@@ -111,38 +113,49 @@ export default function PatientDetail() {
     }
   };
 
+  // Load patient and notes data
   useEffect(() => {
-    const getPatient = async () => {
+    // Skip loading for new patient
+    if (patientId === "new") return;
+    
+    const fetchData = async () => {
       setIsLoading(true);
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}`
-      );
-      const data = await res.json();
-      console.log("patient data", data);
-      dispatch({ type: "setPatient", payload: data });
-      setIsLoading(false);
+      setError(null);
+      
+      try {
+        // Fetch patient data
+        const data = await patientService.getPatientById(patientId);
+        if (data) {
+          dispatch({ type: "setPatient", payload: data });
+        } else {
+          setError("Patient not found");
+        }
+        
+        // Fetch notes data
+        const notesData = await getNotesByPatientId(patientId);
+        setNotes(notesData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        setError("Failed to load patient data");
+      } finally {
+        setIsLoading(false);
+      }
     };
-    console.log("patientId", patientId);
-    getPatient();
-    getNotesByPatientId(patientId as string)
-      .then((notes: DoctorNote[]) => {
-        setNotes(notes);
-      })
-      .catch((error: Error) => {
-        console.error("Error fetching notes:", error);
-      });
+    
+    fetchData();
   }, [patientId, getNotesByPatientId]);
 
+  // Handle "new" patient route
   if (patientId === "new") {
     return (
       <div className="flex flex-col items-center justify-center h-full gap-4 relative">
         <div className="absolute top-8 left-8 hidden lg:block">
-        <BreadcrumbNavigator
-          breadcrumbs={[
-            { label: "Patients", href: "/patients" },
-            { label: "New Patient", href: "/patients/new" },
-          ]}
-        />
+          <BreadcrumbNavigator
+            breadcrumbs={[
+              { label: "Patients", href: "/patients" },
+              { label: "New Patient", href: "/patients/new" },
+            ]}
+          />
         </div>
         <h1 className="text-3xl font-bold text-center">New Patient</h1>
         <div className="text-center text-gray-500 text-lg">
@@ -152,60 +165,63 @@ export default function PatientDetail() {
     );
   }
 
+  // Safely get patient name
   const getPatientName = () => {
-    if (!patient) return "";
-    return `${patient?.firstName} ${patient?.lastName}`;
+    return patient ? `${patient.firstName} ${patient.lastName}` : "Patient";
   };
 
+  // Save patient data
   const savePatient = async () => {
     if (!patient || isLoading) return;
+    
     setIsLoading(true);
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/patients/${patientId}`,
-      {
-        method: "PUT",
-        body: JSON.stringify(patient),
-      }
-    );
-    const data = await res.json();
-    console.log("updated patient", data);
-    dispatch({ type: "setPatient", payload: data });
-    setIsLoading(false);
-    setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 2000);
+    setError(null);
+    
+    try {
+      const data = await patientService.updatePatient(patientId, patient);
+      dispatch({ type: "setPatient", payload: data });
+      setSaveSuccess(true);
+    } catch (error) {
+      console.error("Error updating patient:", error);
+      setError("Failed to save patient data");
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 2000);
+    }
   };
 
-  // Create a wrapper function that converts string to object format
-  const handleMedicalActionChoice = (action: string) => {
-    const actionObj = actions.find((a) => a.label === action);
+  // Handle medical action selection
+  const handleMedicalActionChoice = (actionLabel: string) => {
+    const actionObj = actions.find((a) => a.label === actionLabel);
     if (actionObj) {
       onChooseActions(actionObj);
     }
   };
 
+  // Define tabs with components
   const tabs = [
     {
       label: "Info",
       value: "info",
-      component: (
+      component: patient ? (
         <PatientInfo
-          patient={patient as Patient}
+          patient={patient}
           dispatch={dispatch}
           save={savePatient}
           isLoading={isLoading}
           saveSuccess={saveSuccess}
         />
-      ),
+      ) : null,
     },
     {
       label: "Medical",
       value: "medical",
-      component: (
+      component: patient ? (
         <MedicalOverview
           data={{
-            patient: patient as Patient,
+            patient: patient,
             doctorsNotes: notes,
           }}
           dispatch={dispatch}
@@ -214,49 +230,62 @@ export default function PatientDetail() {
           saveSuccess={saveSuccess}
           onChooseActions={handleMedicalActionChoice}
         />
-      ),
+      ) : null,
     },
     {
       label: "Appointments",
       value: "appointments",
-      component: (
+      component: patient ? (
         <Appointments
-          patient={patient as Patient}
-          
-          
+          patient={patient}
         />
-      ),
+      ) : null,
     },
     {
       label: "Billing",
       value: "billing",
-      component: <Billing patient={patient as Patient} />,
+      component: patient ? <Billing patient={patient} /> : null,
     },
     {
       label: "Notes",
       value: "notes",
-      component: (
+      component: patient ? (
         <Notes
-          patient={patient as Patient}
+          patient={patient}
           onChooseActions={handleMedicalActionChoice}
         />
-      ),
+      ) : null,
     },
     {
       label: "Alerts",
       value: "alerts",
-      component: <Alerts patient={patient as Patient} />,
+      component: patient ? <Alerts patient={patient} /> : null,
     },
   ];
 
+  // Show error state if we have an error
+  if (error && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <h2 className="text-xl font-semibold text-red-600">{error}</h2>
+        <button 
+          onClick={() => window.location.reload()}
+          className="px-4 py-2 bg-emerald-600 text-white rounded-md"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
-      <div className="flex  items-center justify-center gap-3 h-1/12">
+      <div className="flex items-center justify-center gap-3 h-1/12">
         <Avatar
           name={getPatientName()}
           size="lg"
           type="rounded"
-          className="text-2xl font-semibold border-2 text-black bg-white "
+          className="text-2xl font-semibold border-2 text-black bg-white"
         />
         <h1 className="text-2xl font-medium">{getPatientName()}</h1>
       </div>
@@ -280,13 +309,13 @@ export default function PatientDetail() {
         </div>
       ) : (
         <div className="w-full h-5/6 flex gap-4 py-4 overflow-auto">
-          <Tabs defaultValue="info" className="w-full h-full ">
-            <TabsList className="w-full ">
+          <Tabs defaultValue="info" className="w-full h-full">
+            <TabsList className="w-full">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="data-[state=active]:bg-emerald-950 data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:border-emerald-950 "
+                  className="data-[state=active]:bg-emerald-950 data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:border-emerald-950"
                 >
                   {tab.label}
                 </TabsTrigger>
@@ -300,7 +329,7 @@ export default function PatientDetail() {
                     value={tab.value}
                     className="w-full h-full overflow-auto p-6"
                   >
-                    {tab?.component || <div>No component for this tab yet</div>}
+                    {tab.component || <div>No component for this tab yet</div>}
                   </TabsContent>
                 ))}
               </>
@@ -312,7 +341,7 @@ export default function PatientDetail() {
                 setActions(actions.map((a) => ({ ...a, isActive: false })));
               }}
               action={actions.find((a) => a.isActive)?.label || ""}
-              data={patient || null}
+              data={patient}
             />
           )}
         </div>
