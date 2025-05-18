@@ -57,6 +57,10 @@ const Sidebar = () => {
           );
         })}
       </div>
+      <div className="flex flex-col gap-2 text-xs text-black/50 mt-auto p-4">
+        Designed & developed by{" "}
+        <span className="font-semibold text-black">Sam Sobhan © </span>
+      </div>
     </div>
   );
 };
