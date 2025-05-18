@@ -2,13 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Patient } from "../types/patient";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tabs } from "@/components/ui/tabs";
-import {
-  MessageSquare,
-  NotebookPenIcon,
-  Plus,
-  User,
-  UserIcon,
-} from "lucide-react";
+import { MessageSquare, NotebookPenIcon, Plus, UserIcon } from "lucide-react";
 import { DoctorNote } from "../types/note";
 import { Memo } from "../types/memos";
 import { notesService } from "../services/notesService";
@@ -33,14 +27,13 @@ const Notes = ({ patient }: NotesProps) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch both notes and memos
         const notesData = await notesService.getNotesByPatientId(patient.id);
         const memosData = await memoService.getMemosByPatientId(patient.id);
 
         setClinicalNotes(notesData);
         setMemos(memosData);
 
-        // Combine and sort all notes by date in descending order (newest first)
+        //In descending order (newest first)
         const combined = [...notesData, ...memosData].sort((a, b) => {
           const dateA = isDoctorNote(a)
             ? new Date(a.createdDate).getTime()
@@ -77,10 +70,9 @@ const Notes = ({ patient }: NotesProps) => {
     });
   };
 
-  // Render the appropriate note card based on the note type
   const renderNote = (note: DoctorNote | Memo) => {
     if (isDoctorNote(note)) {
-      // Render Doctor Note
+      //Render Doctor Note
       return (
         <div
           key={note.id}
@@ -207,7 +199,6 @@ const Notes = ({ patient }: NotesProps) => {
                     >
                       <div className="flex justify-between mb-2">
                         <div className="flex gap-2 items-center">
-                          {/* <NotebookPenIcon className="w-4 h-4" /> */}
                           <MessageSquare className="w-4 h-4" />
                           <h3 className="font-medium">
                             {`Note for ${memo.patient.firstName} ${memo.patient.lastName}`}
