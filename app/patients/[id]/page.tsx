@@ -259,10 +259,14 @@ export default function PatientDetail() {
         </div>
       ) : (
         <div className="w-full h-5/6 flex gap-4 py-4 overflow-auto">
-          <Tabs defaultValue="info" className="w-full h-full">
+          <Tabs defaultValue="info" className="w-full h-full ">
             <TabsList className="w-full ">
               {tabs.map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
+                <TabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  className="data-[state=active]:bg-emerald-950 data-[state=active]:text-white data-[state=active]:font-semibold data-[state=active]:border-emerald-950 "
+                >
                   {tab.label}
                 </TabsTrigger>
               ))}
