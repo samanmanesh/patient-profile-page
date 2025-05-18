@@ -7,9 +7,16 @@ import { DoctorNote } from "../types/note";
 import { Memo } from "../types/memos";
 import { notesService } from "../services/notesService";
 import { memoService } from "../services/memoService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 
 type NotesProps = {
   patient: Patient;
+  onChooseActions: (action: string) => void;
 };
 
 // Type guard to check if a note is a DoctorNote
@@ -17,7 +24,7 @@ const isDoctorNote = (note: DoctorNote | Memo): note is DoctorNote => {
   return (note as DoctorNote).content !== undefined;
 };
 
-const Notes = ({ patient }: NotesProps) => {
+const Notes = ({ patient, onChooseActions }: NotesProps) => {
   const [allNotes, setAllNotes] = useState<(DoctorNote | Memo)[]>([]);
   const [memos, setMemos] = useState<Memo[]>([]);
   const [clinicalNotes, setClinicalNotes] = useState<DoctorNote[]>([]);
@@ -142,10 +149,16 @@ const Notes = ({ patient }: NotesProps) => {
     <div className="flex flex-col h-full gap-4 ">
       <div className="flex justify-between px-2">
         <h3 className="px-2 text-lg font-medium text-[#73726E]">Notes</h3>
-        <button className="flex items-center ">
-          <Plus className="w-4 h-4 mr-1" />
-          Add Note
-        </button>
+        <Select onValueChange={(value) => onChooseActions(value)}>
+          <SelectTrigger className="flex items-center border-none shadow-none  rounded-lg px-2 py-1  cursor-pointer transition-all duration-300 gap-2 ">
+            <Plus className="w-6 h-6  " />
+            <span className=" font-medium">Add Note</span>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="New Memo">New Memos</SelectItem>
+            <SelectItem value="Doctor Note">New Doctor Note</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="p-4 gap-12 rounded-lg border-2 border-[#F1F1F1] w-full  flex flex-col h-11/12 ">

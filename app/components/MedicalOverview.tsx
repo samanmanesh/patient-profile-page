@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/accordion";
 import { DoctorNote } from "../types/note/index";
 
-type Props = {
+type MedicalOverviewProps = {
   data: {
     patient: Patient;
     doctorsNotes: DoctorNote[];
@@ -34,6 +34,7 @@ type Props = {
   save: () => void;
   isLoading: boolean;
   saveSuccess: boolean;
+  onChooseActions: (action: string) => void;
 };
 
 type Vitals = Partial<Patient>["measurements"];
@@ -437,7 +438,8 @@ const MedicalOverview = ({
   save,
   isLoading,
   saveSuccess,
-}: Props) => {
+  onChooseActions,
+}: MedicalOverviewProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const { patient, doctorsNotes } = data ?? {};
 
@@ -521,7 +523,10 @@ const MedicalOverview = ({
             Clinical Notes
           </h3>
           <div className="flex gap-2">
-            <button className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 ">
+            <button
+              className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
+              onClick={() => onChooseActions("Doctor Note")}
+            >
               <PlusIcon className="w-4 h-4" />
               Add Note
             </button>

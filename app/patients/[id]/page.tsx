@@ -66,7 +66,7 @@ export default function PatientDetail() {
     null
   );
   const [notes, setNotes] = useState<DoctorNote[]>([]);
-  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [actions, setActions] = useState<
@@ -98,7 +98,7 @@ export default function PatientDetail() {
     label: string;
     icon: React.ReactNode;
     isActive: boolean;
-  }) => {
+    }) => {
     if (action.isActive) {
       setActions(actions.map((a) => ({ ...a, isActive: false })));
     } else {
@@ -166,6 +166,14 @@ export default function PatientDetail() {
     }, 2000);
   };
 
+  // Create a wrapper function that converts string to object format
+  const handleMedicalActionChoice = (action: string) => {
+    const actionObj = actions.find(a => a.label === action);
+    if (actionObj) {
+      onChooseActions(actionObj);
+    }
+  };
+
   const tabs = [
     {
       label: "Info",
@@ -193,6 +201,7 @@ export default function PatientDetail() {
           save={savePatient}
           isLoading={isLoading}
           saveSuccess={saveSuccess}
+          onChooseActions={handleMedicalActionChoice}
         />
       ),
     },
@@ -217,7 +226,10 @@ export default function PatientDetail() {
     {
       label: "Notes",
       value: "notes",
-      component: <Notes patient={patient as Patient} />,
+      component: <Notes 
+          patient={patient as Patient}
+          onChooseActions={handleMedicalActionChoice}
+      />,
     },
     {
       label: "Alerts",
@@ -225,6 +237,8 @@ export default function PatientDetail() {
       component: <Alerts patient={patient as Patient} />,
     },
   ];
+
+  
 
   return (
     <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
@@ -286,9 +300,7 @@ export default function PatientDetail() {
           </Tabs>
           {actions.find((a) => a.isActive) && (
             <ActionModal
-              isOpen={isActionModalOpen}
               onClose={() => {
-                setIsActionModalOpen(false);
                 setActions(actions.map((a) => ({ ...a, isActive: false })));
               }}
               action={actions.find((a) => a.isActive)?.label || ""}
