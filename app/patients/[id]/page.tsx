@@ -217,13 +217,12 @@ export default function PatientDetail() {
     {
       label: "Notes",
       value: "notes",
-      // Commented out until Notes component is implemented
       component: <Notes patient={patient as Patient} />,
     },
     {
       label: "Alerts",
       value: "alerts",
-      component: <Alerts patient={patient as Patient}/>,
+      component: <Alerts patient={patient as Patient} />,
     },
   ];
 
