@@ -14,8 +14,8 @@
         "submittedAt": "2023-10-02T11:15:00Z"
       },
       "createdDate": "2023-10-02T11:15:00Z",
-      "actionRequired": true,
-      "resolvedDate": null,
+      "actionRequired": false,
+      "resolvedDate": "2025-05-18T14:46:49.876Z",
       "tags": [
         {
           "id": "tag_5a4b3c2d1e",
@@ -32,7 +32,12 @@
         "lastName": "Davis",
         "email": "robert.davis@decodahealth.com"
       },
-      "resolvingProvider": null,
+      "resolvingProvider": {
+        "id": "usr_3c4d5e6f7g8h9i0j1k",
+        "firstName": "Robert",
+        "lastName": "Davis",
+        "email": "robert.davis@decodahealth.com"
+      },
       "occurances": 1,
       "patient": {
         "id": "pt_5f8a92a3eb28c15dc7a9a3d1",
