@@ -4,6 +4,15 @@ import { PatientsTable } from "../UI/PatientsTable";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import BreadcrumbNavigator from "../UI/BreadcrumbNavigator";
+import { getPatients as getPatientData } from "@/app/lib/data";
+
+// Define an interface for patient data from API which may have additional fields
+interface PatientWithStatus {
+  id: string;
+  firstName: string;
+  lastName: string;
+  status?: string;
+}
 
 interface PageParams {
   searchParams: Promise<{
@@ -11,41 +20,114 @@ interface PageParams {
   }>;
 }
 
+// Use this helper function to determine if we're on the server side
+const isServer = () => typeof window === 'undefined';
+
 async function getPatients(searchParams: {
   [key: string]: string | string[] | undefined;
 }) {
-  const search =
-    typeof searchParams.search === "string" ? searchParams.search : "";
-  const status =
-    typeof searchParams.status === "string" ? searchParams.status : "";
-  const page = typeof searchParams.page === "string" ? searchParams.page : "1";
+  try {
+    const search =
+      typeof searchParams.search === "string" ? searchParams.search : "";
+    const status =
+      typeof searchParams.status === "string" ? searchParams.status : "";
+    const page = typeof searchParams.page === "string" ? searchParams.page : "1";
 
-  // Fix URL construction for both server and client side
-  let url: string;
-  
-  // When running on server side in Vercel
-  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-    // Use the Vercel URL from environment
-    url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/patients?search=${search}&status=${status}&page=${page}`;
-  } else if (process.env.NEXT_PUBLIC_API_URL) {
-    // Use provided API URL if available
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, ''); // Remove trailing slash if present
-    url = `${baseUrl}/api/patients?search=${search}&status=${status}&page=${page}`;
-  } else {
-    // Fall back to relative URL (only works in browser context)
-    url = `/api/patients?search=${search}&status=${status}&page=${page}`;
+    // For server-side rendering, try to use our data helper directly
+    // This avoids network requests between server components
+    if (isServer()) {
+      console.log('Server-side: Using direct data access');
+      try {
+        const patients = await getPatientData();
+        // Apply the same filtering logic that would happen in the API
+        const filteredPatients = patients.filter(patient => {
+          // Simple search implementation - match name or id
+          if (search && !`${patient.firstName} ${patient.lastName}`.toLowerCase().includes(search.toLowerCase()) && 
+              !patient.id.includes(search)) {
+            return false;
+          }
+          // Status filtering - if using status field
+          if (status && (patient as PatientWithStatus).status !== status) {
+            return false;
+          }
+          return true;
+        });
+        
+        // Simple pagination
+        const pageSize = 10;
+        const pageNumber = parseInt(page, 10) || 1;
+        const start = (pageNumber - 1) * pageSize;
+        const end = start + pageSize;
+        const paginatedPatients = filteredPatients.slice(start, end);
+        
+        const totalPages = Math.ceil(filteredPatients.length / pageSize);
+        
+        return {
+          patients: paginatedPatients,
+          pagination: {
+            currentPage: pageNumber,
+            pageCount: totalPages,
+            totalItems: filteredPatients.length
+          }
+        };
+      } catch (err) {
+        console.error('Direct data access failed, falling back to API request', err);
+        // Fall through to API request
+      }
+    }
+
+    // Fix URL construction for both server and client side
+    let url: string;
+    const apiPath = `/api/patients?search=${search}&status=${status}&page=${page}`;
+    
+    // When running on server side in Vercel
+    if (isServer()) {
+      if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+        // Use the Vercel URL from environment
+        url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}${apiPath}`;
+      } else if (process.env.NEXT_PUBLIC_API_URL) {
+        // Use provided API URL if available
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, '');
+        url = `${baseUrl}${apiPath}`;
+      } else {
+        // Last resort - use a relative URL but this may fail in server context
+        url = apiPath;
+        console.warn('No base URL available for server-side request. This may fail.');
+      }
+    } else {
+      // Client-side - we can use relative URLs safely
+      url = apiPath;
+    }
+
+    // For debugging
+    console.log(`Fetching patients from URL: ${url} (server: ${isServer()})`);
+    
+    const res = await fetch(url, { 
+      cache: "no-store",
+      // Add headers to help with debugging
+      headers: {
+        'x-request-source': isServer() ? 'server' : 'client',
+      }
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch patients: ${res.status} ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Error in getPatients:', error);
+    // Return a valid but empty response structure to avoid breaking the UI
+    return {
+      patients: [],
+      pagination: {
+        currentPage: 1,
+        pageCount: 0,
+        totalItems: 0
+      }
+    };
   }
-
-  // For debugging
-  console.log('Fetching from URL:', url);
-  
-  const res = await fetch(url, { cache: "no-store" });
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch patients");
-  }
-
-  return res.json();
 }
 
 export default async function PatientsPage({ searchParams }: PageParams) {
@@ -77,13 +159,22 @@ async function PatientsTableWrapper({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  const data = await getPatients(searchParams);
-  return (
-    <div className="mt-4">
-      <PatientsTable
-        data={data.patients}
-        pageCount={data.pagination.pageCount}
-      />
-    </div>
-  );
+  try {
+    const data = await getPatients(searchParams);
+    return (
+      <div className="mt-4">
+        <PatientsTable
+          data={data.patients}
+          pageCount={data.pagination.pageCount}
+        />
+      </div>
+    );
+  } catch (err) {
+    console.error('Error rendering patients table:', err);
+    return (
+      <div className="mt-4 p-4 bg-red-50 text-red-700 rounded">
+        Error loading patients. Please try again.
+      </div>
+    );
+  }
 }
