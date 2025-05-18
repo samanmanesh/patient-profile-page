@@ -2,6 +2,17 @@ import { AlertsResponse } from '@/app/types/alert';
 import { Memo } from '@/app/types/memos';
 import { Patient } from '@/app/types/patient';
 
+// Helper function to get the base URL for production fetches
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    return `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+  }
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return '';
+}
+
 // Helper to read data based on environment
 export async function readData<T>(filename: string, defaultValue: T): Promise<T> {
   if (process.env.NODE_ENV === 'development') {
@@ -20,9 +31,13 @@ export async function readData<T>(filename: string, defaultValue: T): Promise<T>
   } else {
     // Production mode - fetch from /public/data
     try {
-      const response = await fetch(`/data/${filename}`);
+      const baseUrl = getBaseUrl();
+      const url = `${baseUrl}/data/${filename}`;
+      console.log(`Fetching data from: ${url}`);
+      
+      const response = await fetch(url);
       if (!response.ok) {
-        throw new Error(`Failed to fetch ${filename}`);
+        throw new Error(`Failed to fetch ${filename}: ${response.status} ${response.statusText}`);
       }
       return response.json();
     } catch (error) {

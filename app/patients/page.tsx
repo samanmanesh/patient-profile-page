@@ -20,13 +20,26 @@ async function getPatients(searchParams: {
     typeof searchParams.status === "string" ? searchParams.status : "";
   const page = typeof searchParams.page === "string" ? searchParams.page : "1";
 
-  // Use a relative URL if NEXT_PUBLIC_API_URL is not set
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  // Fix URL construction for both server and client side
+  let url: string;
   
-  const res = await fetch(
-    `${baseUrl}/api/patients?search=${search}&status=${status}&page=${page}`,
-    { cache: "no-store" }
-  );
+  // When running on server side in Vercel
+  if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    // Use the Vercel URL from environment
+    url = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/patients?search=${search}&status=${status}&page=${page}`;
+  } else if (process.env.NEXT_PUBLIC_API_URL) {
+    // Use provided API URL if available
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, ''); // Remove trailing slash if present
+    url = `${baseUrl}/api/patients?search=${search}&status=${status}&page=${page}`;
+  } else {
+    // Fall back to relative URL (only works in browser context)
+    url = `/api/patients?search=${search}&status=${status}&page=${page}`;
+  }
+
+  // For debugging
+  console.log('Fetching from URL:', url);
+  
+  const res = await fetch(url, { cache: "no-store" });
 
   if (!res.ok) {
     throw new Error("Failed to fetch patients");
