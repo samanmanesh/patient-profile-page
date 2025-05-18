@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import React from "react";
 
 type QuickActionsBarProps = {
-  patientId: string;
   actionsButton: {
     label: string;
     icon: React.ReactNode;
@@ -16,7 +15,6 @@ type QuickActionsBarProps = {
 };
 
 const QuickActionsBar = ({
-  patientId,
   actionsButton,
   onChooseActions,
 }: QuickActionsBarProps) => {
@@ -29,7 +27,7 @@ const QuickActionsBar = ({
           className={cn(
             "p-2 rounded-full cursor-pointer flex gap-1 items-center justify-center",
             action.isActive
-              ? "bg-black/80 text-white"
+              ? "bg-emerald-950 text-white"
               : "bg-[#F1F1F1] text-black"
           )}
           onClick={() => onChooseActions(action)}

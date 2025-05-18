@@ -244,11 +244,10 @@ export default function PatientDetail() {
           { label: "Patients", href: "/patients" },
           { label: getPatientName(), href: `/patients/${patientId}` },
         ]}
-        className="absolute top-8 left-8"
+        className="absolute top-8 left-8 hidden lg:block"
       />
 
       <QuickActionsBar
-        patientId={patientId as string}
         actionsButton={actions}
         onChooseActions={onChooseActions}
       />
