@@ -11,6 +11,8 @@ import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 import MedicalOverview from "@/app/components/MedicalOverview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { notesService } from "@/app/services/notesService";
+import { DoctorNote } from "@/app/types/note";
 
 const patientReducer = (
   state: Patient | null,
@@ -59,6 +61,7 @@ export default function PatientDetail() {
     >,
     null
   );
+  const [notes, setNotes] = useState<DoctorNote[]>([]);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -85,16 +88,7 @@ export default function PatientDetail() {
       isActive: false,
     },
   ]);
-
-  const [tab, setTab] = useState<
-    | "overview"
-    | "info"
-    | "medical"
-    | "appointments"
-    | "billing"
-    | "notes"
-    | "alerts"
-  >("overview");
+  const {getNotesByPatientId} = notesService
 
   const onChooseActions = (action: {
     label: string;
@@ -111,6 +105,7 @@ export default function PatientDetail() {
   };
 
   useEffect(() => {
+    if(!patientId) return;
     setIsLoading(true);
     const getPatient = async () => {
       const res = await fetch(
@@ -120,7 +115,14 @@ export default function PatientDetail() {
       dispatch({ type: "setPatient", payload: data });
       setIsLoading(false);
     };
-    getPatient();
+    console.log("patientId", patientId)
+    getPatient()
+    getNotesByPatientId( patientId as string ).then(notes => {
+      setNotes(notes)
+    })
+    .catch(error => {
+      console.error("Error fetching notes:", error);
+    })
   }, [patientId]);
 
   if (patientId === "new") {
@@ -191,7 +193,10 @@ export default function PatientDetail() {
       value: "medical",
       component: (
         <MedicalOverview
-          patient={patient as Patient}
+          data={{
+            patient: patient as Patient,
+              doctorsNotes: notes,
+          }}
           dispatch={dispatch}
           save={savePatient}
           isLoading={isLoading}

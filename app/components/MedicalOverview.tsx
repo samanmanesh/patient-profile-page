@@ -2,16 +2,28 @@ import React, { Dispatch, useState } from "react";
 import { Medication, Patient, MeasurementUnit } from "../types/patient";
 import { cn, getKeyLabel } from "../utils";
 import { Input } from "@/components/ui/input";
-import { CheckIcon, Loader2, PillIcon, SaveIcon, SquarePenIcon } from "lucide-react";
+import {
+  CheckIcon,
+  FileTextIcon,
+  Loader2,
+  PillIcon,
+  PlusIcon,
+  SaveIcon,
+  SquarePenIcon,
+} from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { DoctorNote } from "../types/note/index";
 
 type Props = {
-  patient: Patient;
+  data: {
+    patient: Patient;
+    doctorsNotes: DoctorNote[];
+  };
   dispatch: Dispatch<{
     type: string;
     payload:
@@ -212,9 +224,11 @@ const MedicalHistorySection = ({
   dispatch,
   isLoading,
   isEditing,
-  patient,
 }: {
-  data: MedicalHistory | null;
+  data: {
+    patient: Patient;
+    doctorsNotes: DoctorNote[];
+  };
   dispatch: Dispatch<{
     type: string;
     payload:
@@ -224,9 +238,9 @@ const MedicalHistorySection = ({
   }>;
   isLoading: boolean;
   isEditing: boolean;
-  patient: Patient;
 }) => {
-  const { allergies, familyHistory, medicalHistory } = data ?? {};
+  const { allergies, familyHistory, medicalHistory } = data.patient ?? {};
+  const { doctorsNotes } = data;
 
   const randomTailwindColor = () => {
     const colors = [
@@ -258,7 +272,7 @@ const MedicalHistorySection = ({
     dispatch({
       type: "setPatient",
       payload: {
-        ...patient,
+        ...data.patient,
         [field]: updatedArray,
       },
     });
@@ -418,85 +432,124 @@ const MedicalHistorySection = ({
 };
 
 const MedicalOverview = ({
-  patient,
+  data,
   dispatch,
   save,
   isLoading,
   saveSuccess,
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
+  const { patient, doctorsNotes } = data ?? {};
 
   return (
-    <div className="flex flex-col gap-2 p-4">
-      <div className="flex justify-between items-center">
-        <h3 className="px-2 text-lg font-medium text-[#73726E]">
-          Medical Overview
-        </h3>
-        <button
-          className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
-          onClick={() => setIsEditing(!isEditing)}
-        >
-          <SquarePenIcon
-            className={cn(
-              "w-5 h-5 text-[#73726E] ",
-              isEditing && "text-[#000000]"
-            )}
+    <div className="flex flex-col gap-12 p-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <h3 className="px-2 text-lg font-medium text-[#73726E]">
+            Medical Overview
+          </h3>
+          <button
+            className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 "
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            <SquarePenIcon
+              className={cn(
+                "w-5 h-5 text-[#73726E] ",
+                isEditing && "text-[#000000]"
+              )}
+            />
+          </button>
+        </div>
+
+        <div className="p-4 gap-2 rounded-lg border-2 border-[#F1F1F1]">
+          <VitalsSection
+            data={patient.measurements}
+            dispatch={dispatch}
+            isLoading={isLoading}
+            isEditing={isEditing}
+            patient={patient}
           />
-        </button>
+          <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
+          <MedicationsSection
+            data={patient.medications}
+            dispatch={dispatch}
+            isLoading={isLoading}
+            isEditing={isEditing}
+            patient={patient}
+          />
+          <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
+          <MedicalHistorySection
+            data={data}
+            dispatch={dispatch}
+            isLoading={isLoading}
+            isEditing={isEditing}
+          />
+        </div>
+        <div className="flex justify-end">
+          <button
+            className={cn(
+              "rounded-xl bg-emerald-900 text-white  px-3 py-2 hover:bg-emerald-900/80 transition-all duration-300 flex items-center gap-2",
+              isLoading && "opacity-50 cursor-not-allowed"
+            )}
+            disabled={isLoading}
+            onClick={() => {
+              if (isLoading) return;
+              setIsEditing(false);
+              save();
+            }}
+          >
+            {isLoading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : saveSuccess ? (
+              <>
+                <CheckIcon className="w-5 h-5" />
+                Saved
+              </>
+            ) : (
+              <>
+                <SaveIcon className="w-5 h-5" />
+                Save
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
-      <div className="p-4 gap-2 rounded-lg border-2 border-[#F1F1F1]">
-        <VitalsSection
-          data={patient.measurements}
-          dispatch={dispatch}
-          isLoading={isLoading}
-          isEditing={isEditing}
-          patient={patient}
-        />
-        <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
-        <MedicationsSection
-          data={patient.medications}
-          dispatch={dispatch}
-          isLoading={isLoading}
-          isEditing={isEditing}
-          patient={patient}
-        />
-        <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
-        <MedicalHistorySection
-          data={patient}
-          dispatch={dispatch}
-          isLoading={isLoading}
-          isEditing={isEditing}
-          patient={patient}
-        />
-      </div>
-      <div className="flex justify-end">
-        <button
-          className={cn(
-            "rounded-xl bg-emerald-900 text-white  px-3 py-2 hover:bg-emerald-900/80 transition-all duration-300 flex items-center gap-2",
-            isLoading && "opacity-50 cursor-not-allowed"
-          )}
-          disabled={isLoading}
-          onClick={() => {
-            if (isLoading) return;
-            setIsEditing(false);
-            save();
-          }}
-        >
-          {isLoading ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : saveSuccess ? (
-            <>
-              <CheckIcon className="w-5 h-5" />
-              Saved
-            </>
-          ) : (
-            <>
-              <SaveIcon className="w-5 h-5" />
-              Save
-            </>
-          )}
-        </button>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <h3 className="px-2 text-lg font-medium text-[#73726E]">
+            Clinical Notes
+          </h3>
+          <div className="flex gap-2">
+            <button className="rounded-lg gap-2 flex items-center cursor-pointer hover:scale-105 transition-all duration-300 p-1 ">
+              <PlusIcon className="w-4 h-4" />
+              Add Note
+            </button>
+          </div>
+        </div>
+        <div className="p-6 flex flex-col gap-12 rounded-lg border-2 border-[#F1F1F1]">
+          {doctorsNotes.map((note) => (
+            <div
+              key={note.id}
+              className="flex flex-col gap-2 p-4 rounded-lg bg-[#fbfbfb]"
+            >
+              <div className="flex gap-4 items-center px-2">
+                <FileTextIcon className="w-6 h-6 flex-shrink-0" />
+                <h4 className="text-lg font-medium overflow-hidden text-ellipsis whitespace-wrap">
+                  {note.summary}
+                </h4>
+              </div>
+              <p className="text-sm text-[#73726E] px-2">
+                {new Date(note.createdDate).toLocaleDateString()}
+              </p>
+              <textarea
+                className="bg-white text-neutral-800 border-2 border-[#F1F1F1] rounded-lg p-4 resize-none h-80 w-full"
+                value={note.content}
+                disabled={true}
+              ></textarea>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
