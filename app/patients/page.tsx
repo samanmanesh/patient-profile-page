@@ -20,8 +20,11 @@ async function getPatients(searchParams: {
     typeof searchParams.status === "string" ? searchParams.status : "";
   const page = typeof searchParams.page === "string" ? searchParams.page : "1";
 
+  // Use a relative URL if NEXT_PUBLIC_API_URL is not set
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/patients?search=${search}&status=${status}&page=${page}`,
+    `${baseUrl}/api/patients?search=${search}&status=${status}&page=${page}`,
     { cache: "no-store" }
   );
 

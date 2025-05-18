@@ -1,30 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { AlertsResponse } from '@/app/types/alert';
-
-// Path to the alerts data file
-const dataFilePath = path.join(process.cwd(), 'app/data/alerts.json');
-
-// Helper function to read alerts from the JSON file
-const getAlerts = (): AlertsResponse => {
-  try {
-    const data = fs.readFileSync(dataFilePath, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    console.error('Error reading alerts data:', error);
-    return { data: [], total: 0 };
-  }
-};
-
-// Helper function to write alerts to the JSON file
-const saveAlerts = (alerts: AlertsResponse): void => {
-  try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(alerts, null, 2), 'utf8');
-  } catch (error) {
-    console.error('Error writing alerts data:', error);
-  }
-};
+import { getAlerts, saveAlerts } from '@/app/lib/data';
 
 // GET handler - Get an alert by ID
 export async function GET(
@@ -32,8 +7,8 @@ export async function GET(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const alerts = getAlerts();
     const id = await context.params.then(params => params.id);
+    const alerts = await getAlerts();
     const alert = alerts.data.find((alert) => alert.id === id);
 
     if (!alert) {
@@ -59,9 +34,9 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const alertData = await request.json();
-    const alerts = getAlerts();
     const id = await context.params.then(params => params.id);
+    const alertData = await request.json();
+    const alerts = await getAlerts();
     const index = alerts.data.findIndex((alert) => alert.id === id);
 
     if (index === -1) {
@@ -79,7 +54,7 @@ export async function PUT(
     };
 
     alerts.data[index] = updatedAlert;
-    saveAlerts(alerts);
+    await saveAlerts(alerts);
 
     return NextResponse.json(updatedAlert);
   } catch (error) {
@@ -97,8 +72,8 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const alerts = getAlerts();
     const id = await context.params.then(params => params.id);
+    const alerts = await getAlerts();
     const filteredAlerts = alerts.data.filter((alert) => alert.id !== id);
 
     if (filteredAlerts.length === alerts.data.length) {
@@ -113,7 +88,7 @@ export async function DELETE(
       total: filteredAlerts.length
     };
     
-    saveAlerts(updatedAlerts);
+    await saveAlerts(updatedAlerts);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting alert:', error);
