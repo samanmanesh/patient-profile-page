@@ -6,7 +6,11 @@ import Avatar from "@/app/UI/Avatar";
 import BreadcrumbNavigator from "@/app/UI/BreadcrumbNavigator";
 import { useParams } from "next/navigation";
 import { Reducer, useEffect, useReducer, useState } from "react";
-import { CreditCard, FileText, PlusIcon } from "lucide-react";
+import {
+  CreditCard,
+  FileText,
+  PlusIcon,
+} from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 import MedicalOverview from "@/app/components/MedicalOverview";
@@ -88,7 +92,7 @@ export default function PatientDetail() {
       isActive: false,
     },
   ]);
-  const {getNotesByPatientId} = notesService
+  const { getNotesByPatientId } = notesService;
 
   const onChooseActions = (action: {
     label: string;
@@ -105,7 +109,7 @@ export default function PatientDetail() {
   };
 
   useEffect(() => {
-    if(!patientId) return;
+    if (!patientId) return;
     setIsLoading(true);
     const getPatient = async () => {
       const res = await fetch(
@@ -115,14 +119,15 @@ export default function PatientDetail() {
       dispatch({ type: "setPatient", payload: data });
       setIsLoading(false);
     };
-    console.log("patientId", patientId)
-    getPatient()
-    getNotesByPatientId( patientId as string ).then(notes => {
-      setNotes(notes)
-    })
-    .catch(error => {
-      console.error("Error fetching notes:", error);
-    })
+    console.log("patientId", patientId);
+    getPatient();
+    getNotesByPatientId(patientId as string)
+      .then((notes) => {
+        setNotes(notes);
+      })
+      .catch((error) => {
+        console.error("Error fetching notes:", error);
+      });
   }, [patientId]);
 
   if (patientId === "new") {
@@ -140,6 +145,8 @@ export default function PatientDetail() {
     if (!patient) return "";
     return `${patient?.firstName} ${patient?.lastName}`;
   };
+
+
 
   const savePatient = async () => {
     if (!patient || isLoading) return;
@@ -163,19 +170,6 @@ export default function PatientDetail() {
 
   const tabs = [
     {
-      label: "Overview",
-      value: "overview",
-      // component: (
-      //   <PatientInfo
-      //     patient={patient as Patient}
-      //     dispatch={dispatch}
-      //     save={savePatient}
-      //     isLoading={isLoading}
-      //     saveSuccess={saveSuccess}
-      //   />
-      // ),
-    },
-    {
       label: "Info",
       value: "info",
       component: (
@@ -195,7 +189,7 @@ export default function PatientDetail() {
         <MedicalOverview
           data={{
             patient: patient as Patient,
-              doctorsNotes: notes,
+            doctorsNotes: notes,
           }}
           dispatch={dispatch}
           save={savePatient}
@@ -248,7 +242,7 @@ export default function PatientDetail() {
 
   return (
     <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
-      <div className="flex  items-center justify-center gap-3 h-1/6">
+      <div className="flex  items-center justify-center gap-3 h-1/12">
         <Avatar
           name={getPatientName()}
           size="xl"
@@ -273,37 +267,47 @@ export default function PatientDetail() {
         onChooseActions={onChooseActions}
       />
 
-      <div className="w-full h-5/6  flex gap-4 py-4 overflow-auto">
-        <Tabs defaultValue="overview" className="w-full h-full">
-          <TabsList className="w-full ">
-            {tabs.map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value}>
-                {tab.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {tabs.map((tab) => (
-            <TabsContent
-              key={tab.value}
-              value={tab.value}
-              className="w-full h-full overflow-auto p-6"
-            >
-              {tab?.component}
-            </TabsContent>
-          ))}
-        </Tabs>
-        {actions.find((a) => a.isActive) && (
-          <ActionModal
-            isOpen={isActionModalOpen}
-            onClose={() => {
-              setIsActionModalOpen(false);
-              setActions(actions.map((a) => ({ ...a, isActive: false })));
-            }}
-            action={actions.find((a) => a.isActive)?.label || ""}
-            data={patient || null}
-          />
-        )}
-      </div>
+      {isLoading ? (
+        <div className="w-full h-11/12 flex items-center justify-center">
+          <div className="animate-pulse">Loading patient data...</div>
+        </div>
+      ) : (
+        <div className="w-full h-5/6 flex gap-4 py-4 overflow-auto">
+          <Tabs defaultValue="info" className="w-full h-full">
+            <TabsList className="w-full ">
+              {tabs.map((tab) => (
+                <TabsTrigger key={tab.value} value={tab.value}>
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            {patient && (
+              <>
+                {tabs.map((tab) => (
+                  <TabsContent
+                    key={tab.value}
+                    value={tab.value}
+                    className="w-full h-full overflow-auto p-6"
+                  >
+                    {tab?.component || <div>No component for this tab yet</div>}
+                  </TabsContent>
+                ))}
+              </>
+            )}
+          </Tabs>
+          {actions.find((a) => a.isActive) && (
+            <ActionModal
+              isOpen={isActionModalOpen}
+              onClose={() => {
+                setIsActionModalOpen(false);
+                setActions(actions.map((a) => ({ ...a, isActive: false })));
+              }}
+              action={actions.find((a) => a.isActive)?.label || ""}
+              data={patient || null}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

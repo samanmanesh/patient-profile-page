@@ -21,7 +21,8 @@ const QuickActionsBar = ({
   onChooseActions,
 }: QuickActionsBarProps) => {
   return (
-    <div className="flex flex-row gap-2 p-4 bg-white border-b-2 w-full ">
+    <div className="flex flex-row gap-2 py-4 bg-white border-b w-full items-center ">
+      <span className="text-xs font-medium text-black/70">Quick Actions: </span>
       {actionsButton.map((action) => (
         <div
           key={action.label}
@@ -34,7 +35,7 @@ const QuickActionsBar = ({
           onClick={() => onChooseActions(action)}
         >
           {action.icon}
-          <span className="text-sm font-medium ">{action.label}</span>
+          <span className="text-xs font-medium ">{action.label}</span>
         </div>
       ))}
     </div>
