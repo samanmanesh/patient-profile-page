@@ -12,7 +12,7 @@
     "routingNumber": null,
     "description": "Primary Card",
     "type": "CARD",
-    "isDefault": true
+    "isDefault": false
   },
   {
     "id": "pm_6x5w4v3u2t1s0r9q8",
@@ -28,5 +28,14 @@
     "description": "Checking Account",
     "type": "BANK_ACCOUNT",
     "isDefault": false
+  },
+  {
+    "id": "pm_9ed95797-bed",
+    "patientId": "pt_5f8a92a3eb28c15dc7a9a3d1",
+    "description": "21345245342342",
+    "type": "CARD",
+    "isDefault": true,
+    "brand": "Visa",
+    "last4": "4242"
   }
 ]

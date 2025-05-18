@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notesService } from "@/app/services/notesService";
 import { DoctorNote } from "@/app/types/note";
 import Appointments from "@/app/components/Appointments";
+import Billing from "@/app/components/Billing";
 
 const patientReducer = (
   state: Patient | null,
@@ -90,6 +91,7 @@ export default function PatientDetail() {
     },
   ]);
   const { getNotesByPatientId } = notesService;
+  
 
   const onChooseActions = (action: {
     label: string;
@@ -209,14 +211,13 @@ export default function PatientDetail() {
     {
       label: "Billing",
       value: "billing",
-      // Commented out until Billing component is implemented
-      // component: <Billing
-      //           patient={patient as Patient}
-      //           dispatch={dispatch}
-      //           save={savePatient}
-      //           isLoading={isLoading}
-      //           saveSuccess={saveSuccess}
-      //         />
+      component: <Billing
+                patient={patient as Patient}
+                dispatch={dispatch}
+                save={savePatient}
+                isLoading={isLoading}
+                saveSuccess={saveSuccess}
+              />
     },
     {
       label: "Notes",
