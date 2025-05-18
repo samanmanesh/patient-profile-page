@@ -18,7 +18,7 @@ const patientReducer = (
     payload:
       | Partial<Patient>
       | Patient
-      | { field: keyof Patient; value: string };
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
   }
 ) => {
   switch (action.type) {
@@ -30,6 +30,11 @@ const patientReducer = (
         return {
           ...state,
           [action.payload.field]: action.payload.value,
+          ...(action.payload.subField &&
+            state &&
+            action.payload.subField in state && {
+              [action.payload.subField]: action.payload.value,
+            }),
         } as Patient;
       }
       return state;
@@ -48,7 +53,7 @@ export default function PatientDetail() {
         payload:
           | Partial<Patient>
           | Patient
-          | { field: keyof Patient; value: string };
+          | { field: keyof Patient; value: string; subField?: keyof Patient };
       }
     >,
     null

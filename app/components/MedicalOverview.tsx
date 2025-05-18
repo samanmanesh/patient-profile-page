@@ -1,5 +1,5 @@
 import React, { Dispatch, useState } from "react";
-import { Medication, Patient } from "../types/patient";
+import { Medication, Patient, MeasurementUnit } from "../types/patient";
 import { cn, getKeyLabel } from "../utils";
 import { Input } from "@/components/ui/input";
 import { CheckIcon, Loader2, SaveIcon, SquarePenIcon } from "lucide-react";
@@ -17,7 +17,7 @@ type Props = {
     payload:
       | Partial<Patient>
       | Patient
-      | { field: keyof Patient; value: string };
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
   }>;
   save: () => void;
   isLoading: boolean;
@@ -35,17 +35,16 @@ const VitalsSection = ({
   dispatch,
   isLoading,
   isEditing,
+  patient,
 }: {
   data: Vitals | null;
   dispatch: Dispatch<{
     type: string;
-    payload:
-      | Partial<Patient>
-      | Patient
-      | { field: keyof Patient; value: string };
+    payload: Partial<Patient> | Patient | { field: keyof Patient; value: string; subField?: keyof Patient };
   }>;
   isLoading: boolean;
   isEditing: boolean;
+  patient: Patient;
 }) => {
   return (
     <div className="flex flex-col gap-2 p-4 w-full ">
@@ -68,12 +67,15 @@ const VitalsSection = ({
                 )}
                 value={item.value ?? ""}
                 onChange={(e) => {
+                  const updatedMeasurements = patient.measurements.map(m => 
+                    m.id === item.id ? { ...m, value: e.target.value } : m
+                  );
                   dispatch({
-                    type: "updatePatientField",
+                    type: "setPatient",
                     payload: {
-                      field: "measurements",
-                      value: e.target.value,
-                    },
+                      ...patient,
+                      measurements: updatedMeasurements
+                    }
                   });
                 }}
               />
@@ -86,12 +88,15 @@ const VitalsSection = ({
                 value={item.unit ?? ""}
                 type="select"
                 onChange={(e) => {
+                  const updatedMeasurements = patient.measurements.map(m => 
+                    m.id === item.id ? { ...m, unit: e.target.value as MeasurementUnit } : m
+                  );
                   dispatch({
-                    type: "updatePatientField",
+                    type: "setPatient",
                     payload: {
-                      field: "measurements",
-                      value: e.target.value,
-                    },
+                      ...patient,
+                      measurements: updatedMeasurements
+                    }
                   });
                 }}
               />
@@ -108,6 +113,7 @@ const MedicationsSection = ({
   dispatch,
   isLoading,
   isEditing,
+  patient,
 }: {
   data: Medication[] | null;
   dispatch: Dispatch<{
@@ -115,10 +121,11 @@ const MedicationsSection = ({
     payload:
       | Partial<Patient>
       | Patient
-      | { field: keyof Patient; value: string };
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
   }>;
   isLoading: boolean;
   isEditing: boolean;
+  patient: Patient;
 }) => {
   const medicationFields = [
     "name",
@@ -157,12 +164,15 @@ const MedicationsSection = ({
                         )}
                         value={value ?? ""}
                         onChange={(e) => {
+                          const updatedMedications = data.map(med => 
+                            med.id === item.id ? { ...med, [key]: e.target.value } : med
+                          );
                           dispatch({
-                            type: "updatePatientField",
+                            type: "setPatient",
                             payload: {
-                              field: "medications",
-                              value: e.target.value,
-                            },
+                              ...patient,
+                              medications: updatedMedications
+                            }
                           });
                         }}
                       />
@@ -182,6 +192,7 @@ const MedicalHistorySection = ({
   dispatch,
   isLoading,
   isEditing,
+  patient,
 }: {
   data: MedicalHistory | null;
   dispatch: Dispatch<{
@@ -189,10 +200,11 @@ const MedicalHistorySection = ({
     payload:
       | Partial<Patient>
       | Patient
-      | { field: keyof Patient; value: string };
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
   }>;
   isLoading: boolean;
   isEditing: boolean;
+  patient: Patient;
 }) => {
   const { allergies, familyHistory, medicalHistory } = data ?? {};
 
@@ -210,6 +222,17 @@ const MedicalHistorySection = ({
       "bg-violet-400/50",
     ];
     return colors[Math.floor(Math.random() * colors.length)];
+  };
+
+  const handleArrayUpdate = (field: keyof Pick<Patient, "allergies" | "familyHistory" | "medicalHistory">, value: string) => {
+    const updatedArray = value.split(',').map(item => item.trim()).filter(Boolean);
+    dispatch({
+      type: "setPatient",
+      payload: {
+        ...patient,
+        [field]: updatedArray
+      }
+    });
   };
 
   return (
@@ -230,7 +253,18 @@ const MedicalHistorySection = ({
           </AccordionTrigger>
           <AccordionContent>
             <div className="pl-4">
-              {allergies && allergies.length > 0 ? (
+              {isEditing ? (
+                <Input
+                  disabled={isLoading}
+                  className={cn(
+                    "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
+                    isLoading && "opacity-50 cursor-not-allowed"
+                  )}
+                  value={allergies?.join(', ') ?? ""}
+                  onChange={(e) => handleArrayUpdate("allergies", e.target.value)}
+                  placeholder="Enter allergies separated by commas"
+                />
+              ) : allergies && allergies.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {allergies.map((allergy, index) => (
                     <span
@@ -262,7 +296,18 @@ const MedicalHistorySection = ({
           </AccordionTrigger>
           <AccordionContent>
             <div className="pl-4">
-              {familyHistory && familyHistory.length > 0 ? (
+              {isEditing ? (
+                <Input
+                  disabled={isLoading}
+                  className={cn(
+                    "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
+                    isLoading && "opacity-50 cursor-not-allowed"
+                  )}
+                  value={familyHistory?.join(', ') ?? ""}
+                  onChange={(e) => handleArrayUpdate("familyHistory", e.target.value)}
+                  placeholder="Enter family history conditions separated by commas"
+                />
+              ) : familyHistory && familyHistory.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {familyHistory.map((condition, index) => (
                     <span
@@ -293,9 +338,20 @@ const MedicalHistorySection = ({
             </div>
           </AccordionTrigger>
           <AccordionContent>
-            <div className="pl-4 flex flex-wrap gap-4">
-              {medicalHistory && medicalHistory.length > 0 ? (
-                <div className="flex flex-wrap gap-4">
+            <div className="pl-4">
+              {isEditing ? (
+                <Input
+                  disabled={isLoading}
+                  className={cn(
+                    "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
+                    isLoading && "opacity-50 cursor-not-allowed"
+                  )}
+                  value={medicalHistory?.join(', ') ?? ""}
+                  onChange={(e) => handleArrayUpdate("medicalHistory", e.target.value)}
+                  placeholder="Enter medical conditions separated by commas"
+                />
+              ) : medicalHistory && medicalHistory.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
                   {medicalHistory.map((condition, index) => (
                     <span
                       key={index}
@@ -330,14 +386,6 @@ const MedicalOverview = ({
 }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
 
-  const medicalOverviewToShow: (keyof Patient)[] = [
-    "measurements",
-    "medications",
-    "medicalHistory",
-    "allergies",
-    "familyHistory",
-  ];
-
   return (
     <div className="flex flex-col gap-2 p-4">
       <div className="flex justify-between items-center">
@@ -358,42 +406,12 @@ const MedicalOverview = ({
       </div>
 
       <div className="p-4 gap-2 rounded-lg border-2 border-[#F1F1F1]">
-        {/* {Object.entries(patient).map(([key, value]) => {
-        if (medicalOverviewToShow.includes(key as keyof Patient)) {
-          return (
-            <div key={key} className="flex flex-col gap-2 p-4">
-              <h4 className="text-sm font-medium text-[#73726E]">
-                {getKeyLabel(key)}
-              </h4>
-              <Input
-                value={value ?? ""}
-                type={getInputType(key as keyof Patient)}
-                placeholder={
-                  key === "dateOfBirth"
-                    ? "MM/DD/YYYY"
-                    : key === "phoneNumber"
-                    ? "123-456-7890"
-                    : ""
-                }
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  handleInputChange(key as keyof Patient, e.target.value);
-                }}
-                disabled={!isEditing || isLoading}
-                className={cn(
-                  " rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none [&::-webkit-calendar-picker-indicator]:hidden",
-                  isLoading && "opacity-50 cursor-not-allowed"
-                )}
-              />
-            </div>
-          );
-        }
-        return null;
-      })} */}
         <VitalsSection
           data={patient.measurements}
           dispatch={dispatch}
           isLoading={isLoading}
           isEditing={isEditing}
+          patient={patient}
         />
         <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
         <MedicationsSection
@@ -401,6 +419,7 @@ const MedicalOverview = ({
           dispatch={dispatch}
           isLoading={isLoading}
           isEditing={isEditing}
+          patient={patient}
         />
         <hr className="w-full border-t-2 border-[#F1F1F1] my-4" />
         <MedicalHistorySection
@@ -408,6 +427,7 @@ const MedicalOverview = ({
           dispatch={dispatch}
           isLoading={isLoading}
           isEditing={isEditing}
+          patient={patient}
         />
       </div>
       <div className="flex justify-end">
