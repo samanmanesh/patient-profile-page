@@ -139,7 +139,7 @@ const Notes = ({ patient }: NotesProps) => {
     );
   }
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-full gap-4 ">
       <div className="flex justify-between px-2">
         <h3 className="px-2 text-lg font-medium text-[#73726E]">Notes</h3>
         <button className="flex items-center ">
@@ -148,8 +148,8 @@ const Notes = ({ patient }: NotesProps) => {
         </button>
       </div>
 
-      <div className="p-4 gap-12 rounded-lg border-2 border-[#F1F1F1] w-full  flex flex-col">
-        <Tabs defaultValue="allNotes" className=" rounded-lg  ">
+      <div className="p-4 gap-12 rounded-lg border-2 border-[#F1F1F1] w-full  flex flex-col h-11/12 ">
+        <Tabs defaultValue="allNotes" className=" rounded-lg  h-full ">
           <TabsList className=" bg-white shadow-none w-xs">
             {tabs.map((tab) => (
               <TabsTrigger
