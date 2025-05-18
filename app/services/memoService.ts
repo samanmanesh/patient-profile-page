@@ -1,9 +1,7 @@
 import { Memo } from "../types/memos";
 import { ID } from "../types/common";
 import memos from '../services/data/memos.json';
-
 export const memoService = {
-  // Get all memos
   getAllMemos: async (): Promise<Memo[]> => {
     try {
       return memos as Memo[];
@@ -13,7 +11,6 @@ export const memoService = {
     }
   },
 
-  // Get a memo by ID
   getMemoById: async (id: ID): Promise<Memo | null> => {
     try {
       const memo = (memos as Memo[]).find((memo: Memo) => memo.id === id);
@@ -29,20 +26,17 @@ export const memoService = {
     }
   },
 
-  // Get memos by patient ID
   getMemosByPatientId: async (patientId: ID): Promise<Memo[]> => {
     try {
       return (memos as Memo[]).filter((memo: Memo) => memo.patient.id === patientId);
     } catch (error) {
       console.error("Error getting patient memos:", error);
-      return []; // Return empty array if there's an error
+      return []; 
     }
   },
 
-  // Create a new memo - mocked implementation
   createMemo: async (memo: Partial<Memo>): Promise<Memo> => {
-    // In a real implementation, we would update the local data
-    // For now, just return a mock response
+    // In a real implementation, I would update the local data
     console.log('Create memo called with:', memo);
     return {
       id: `qn_${Math.random().toString(36).substring(2, 15)}`,
@@ -52,17 +46,14 @@ export const memoService = {
     } as Memo;
   },
 
-  // Update a memo - mocked implementation
   updateMemo: async (id: ID, memo: Partial<Memo>): Promise<Memo> => {
     try {
-      // Get the current memo
       const existingMemo = (memos as Memo[]).find((m: Memo) => m.id === id);
       
       if (!existingMemo) {
         throw new Error('Memo not found');
       }
       
-      // Return the updated memo (in a real app, we would save this)
       return {
         ...existingMemo,
         ...memo,
@@ -74,13 +65,10 @@ export const memoService = {
     }
   },
 
-  // Delete a memo - mocked implementation
   deleteMemo: async (id: ID): Promise<void> => {
-    // In a real implementation, we would update the local data
     console.log('Delete memo called with ID:', id);
   },
 
-  // Create a quick memo
   createQuickMemo: async (
     patientId: ID,
     note: string,

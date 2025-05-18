@@ -3,7 +3,6 @@ import paymentMethods from '../services/data/payment_methods.json';
 import charges from '../services/data/charges.json';
 
 class BillingService {
-  // Payment Methods
   async getPatientPaymentMethods(patientId: string): Promise<PaymentMethod[]> {
     try {
       console.log(`Getting payment methods for patient: ${patientId}`);
@@ -18,7 +17,6 @@ class BillingService {
     }
   }
 
-  // Charges
   async getPatientCharges(patientId: string): Promise<Charge[]> {
     try {
       console.log(`Getting charges for patient: ${patientId}`);
@@ -38,5 +36,5 @@ class BillingService {
   }
 }
 
-// Export as a singleton
+// export as a singleton
 export const billingService = new BillingService(); 

@@ -2,9 +2,7 @@ import { Event } from '../types/event';
 import events from '../services/data/events.json';
 
 class EventsService {
-  /**
-   * Get all events
-   */
+
   async getAllEvents(): Promise<Event[]> {
     try {
       return events as unknown as Event[];
@@ -14,9 +12,7 @@ class EventsService {
     }
   }
 
-  /**
-   * Get an event by ID
-   */
+
   async getEventById(id: string): Promise<Event | null> {
     try {
       return events.find((event) => event.id === id) as unknown as Event | null;
@@ -26,14 +22,11 @@ class EventsService {
     }
   }
 
-  /**
-   * Get events for a specific patient
-   */
+
   async getEventsByPatientId(patientId: string): Promise<Event[]> {
     try {
       const eventsData = events as unknown as Event[];
       
-      // Filter events for the specific patient
       return eventsData.filter(event => 
         event.attendees.some(attendee => 
           attendee.user.id === patientId
@@ -46,14 +39,12 @@ class EventsService {
   }
 
   /**
-   * Create a new event - mocked implementation
+   * Create a new event
    */
   async createEvent(eventData: Event): Promise<Event | null> {
     try {
-      // In a real implementation, we would update the local data
       console.log('Create event called with:', eventData);
       
-      // Return a mocked response with the event data and a generated ID
       return {
         ...eventData,
         id: `evt_${Math.random().toString(36).substring(2, 15)}`
@@ -65,11 +56,10 @@ class EventsService {
   }
 
   /**
-   * Update an existing event - mocked implementation
+   * Update an existing event
    */
   async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
     try {
-      // Get the current event
       const eventsData = events as unknown as Event[];
       const existingEvent = eventsData.find(event => event.id === id);
       
@@ -77,7 +67,6 @@ class EventsService {
         throw new Error(`Event not found: ${id}`);
       }
       
-      // Return the updated event (in a real app, we would save this)
       return {
         ...existingEvent,
         ...eventData
@@ -88,15 +77,11 @@ class EventsService {
     }
   }
 
-  /**
-   * Delete an event - mocked implementation
-   */
+
   async deleteEvent(id: string): Promise<boolean> {
     try {
-      // In a real implementation, we would update the local data
-      console.log(`Delete event called with ID: ${id}`);
+        console.log(`Delete event called with ID: ${id}`);
       
-      // Simulate success
       return true;
     } catch (error) {
       console.error(`Error deleting event ${id}:`, error);
@@ -104,9 +89,7 @@ class EventsService {
     }
   }
 
-  /**
-   * Create a new appointment event - mocked implementation
-   */
+
   async createAppointment(appointmentData: {
     patientId: string;
     providerId: string;
@@ -117,7 +100,6 @@ class EventsService {
     appointmentType: string;
     locationId?: string;
   }): Promise<Event | null> {
-    // Format as an event with appointment details
     const eventData = {
       ...appointmentData,
       type: 'APPOINTMENT',
@@ -129,5 +111,5 @@ class EventsService {
   }
 }
 
-// Export as a singleton
+// export as a singleton
 export const eventsService = new EventsService(); 
