@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { Event } from '@/app/types/event';
+import { Appointment, Event } from '@/app/types/event';
+import { Status } from '@/app/types/common';
 
 // Path to the events JSON file
 const dataFilePath = path.join(process.cwd(), 'app/data/events.json');
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
   }));
   
   // Add organizer to attendees if not already included
-  if (!attendees.some(a => a.user.id === body.organizerId)) {
+  if (!attendees.some((a: {user: {id: string}}) => a.user.id === body.organizerId)) {
     attendees.push({
       user: {
         id: body.organizerId,
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     start: body.start,
     end: body.end,
     type: body.type,
-    status: 'SCHEDULED',
+    status: 'SCHEDULED' as Status,
     meetingLink: body.meetingLink || null,
     attendees: attendees,
     location: {
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
       meetingLink: body.isVirtual ? body.meetingLink : null
     },
     formCompleted: false,
-    appointment: appointment
+    appointment: appointment as unknown as Appointment
   };
   
   events.push(newEvent);

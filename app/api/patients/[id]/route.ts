@@ -1,16 +1,39 @@
 import { NextResponse } from "next/server";
-import patientsData from "@/app/data/patient.json";
+import fs from 'fs';
+import path from 'path';
 import { Patient } from "@/app/types/patient";
 
-const patients = (
-  Array.isArray(patientsData) ? patientsData : [patientsData]
-) as Patient[];
+const dataFilePath = path.join(process.cwd(), 'app/data/patient.json');
+
+// Read patients data from file
+const readPatientsFromFile = (): Patient[] => {
+  try {
+    const fileData = fs.readFileSync(dataFilePath, 'utf8');
+    const patientsData = JSON.parse(fileData);
+    return Array.isArray(patientsData) ? patientsData : [patientsData];
+  } catch (error) {
+    console.error('Error reading patients data:', error);
+    return [];
+  }
+};
+
+// Write patients data to file
+const writePatientsToFile = (patients: Patient[]): boolean => {
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(patients, null, 2), 'utf8');
+    return true;
+  } catch (error) {
+    console.error('Error writing patients data:', error);
+    return false;
+  }
+};
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
+  const patients = readPatientsFromFile();
   const patient = patients.find((patient) => patient.id === id);
   if (!patient) {
     return NextResponse.json({ error: "Patient not found" }, { status: 404 });
@@ -23,6 +46,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
+  const patients = readPatientsFromFile();
   const patientIndex = patients.findIndex((patient) => patient.id === id);
 
   if (patientIndex === -1) {
@@ -37,7 +61,17 @@ export async function PUT(
       id, // Ensure ID cannot be changed
     };
 
-    // For now, we'll just return the updated patient
+    // Update patient in the array
+    patients[patientIndex] = updatedPatient;
+    
+    // Write updated data back to file
+    if (!writePatientsToFile(patients)) {
+      return NextResponse.json(
+        { error: "Failed to save patient data" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(updatedPatient);
   } catch (error) {
     return NextResponse.json(
@@ -53,13 +87,23 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
+  const patients = readPatientsFromFile();
   const patientIndex = patients.findIndex((patient) => patient.id === id);
 
   if (patientIndex === -1) {
     return NextResponse.json({ error: "Patient not found" }, { status: 404 });
   }
 
-  // In a real app, this would delete from the database
-  // For now, we'll just return a success message
+  // Remove patient from array
+  patients.splice(patientIndex, 1);
+  
+  // Write updated data back to file
+  if (!writePatientsToFile(patients)) {
+    return NextResponse.json(
+      { error: "Failed to save changes" },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ message: "Patient deleted successfully" });
 }

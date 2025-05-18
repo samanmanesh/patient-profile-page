@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { Alert, AlertsResponse } from '@/app/types/alert';
+import { AlertsResponse } from '@/app/types/alert';
 
 // Path to the alerts data file
 const dataFilePath = path.join(process.cwd(), 'app/data/alerts.json');

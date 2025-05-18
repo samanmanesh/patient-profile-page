@@ -56,10 +56,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    
+
     // Generate a new ID using uuidv4
     const newId = `pt_${uuidv4()}`;
-    
+
     const newPatient: Patient = {
       ...body,
       id: newId,
@@ -69,8 +69,6 @@ export async function POST(request: Request) {
       medications: [],
     };
 
-    // In a real app, this would be saved to a database
-    // For now, we'll just return the new patient
     return NextResponse.json(newPatient, { status: 201 });
   } catch (error) {
     return NextResponse.json(

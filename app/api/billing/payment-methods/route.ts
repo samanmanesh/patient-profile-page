@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
   const patientId = searchParams.get('patientId');
   console.log(`Fetching payment methods for patientId: ${patientId || 'all'}`);
   
+  
   if (patientId) {
     const filteredMethods = paymentMethods.filter(method => method.patientId === patientId);
     console.log(`Returning ${filteredMethods.length} payment methods for patient ${patientId}`);

@@ -45,10 +45,12 @@ export async function GET(
     .filter(event => event.start > now)
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
     
+    
   const pastEvents = patientEvents
     .filter(event => event.start <= now)
     .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
   
+
   // Combine with upcoming events first, then past events
   const sortedEvents = [...upcomingEvents, ...pastEvents];
   
