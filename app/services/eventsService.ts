@@ -1,18 +1,12 @@
 import { Event } from '../types/event';
 
 class EventsService {
-  private baseUrl: string;
-
-  constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-  }
-
   /**
    * Get all events
    */
   async getAllEvents(): Promise<Event[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events`);
+      const response = await fetch('/data/events.json');
       if (!response.ok) {
         throw new Error('Failed to fetch events');
       }
@@ -28,11 +22,12 @@ class EventsService {
    */
   async getEventById(id: string): Promise<Event | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events/${id}`);
+      const response = await fetch('/data/events.json');
       if (!response.ok) {
-        throw new Error('Failed to fetch event');
+        throw new Error('Failed to fetch events');
       }
-      return await response.json();
+      const events: Event[] = await response.json();
+      return events.find(event => event.id === id) || null;
     } catch (error) {
       console.error(`Error getting event ${id}:`, error);
       return null;
@@ -44,11 +39,18 @@ class EventsService {
    */
   async getEventsByPatientId(patientId: string): Promise<Event[]> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events/patient/${patientId}`);
+      const response = await fetch('/data/events.json');
       if (!response.ok) {
         throw new Error(`Failed to fetch events for patient ${patientId}`);
       }
-      return await response.json();
+      const events: Event[] = await response.json();
+      
+      // Filter events for the specific patient
+      return events.filter(event => 
+        event.attendees.some(attendee => 
+          attendee.user.id === patientId
+        )
+      );
     } catch (error) {
       console.error(`Error getting events for patient ${patientId}:`, error);
       return [];
@@ -56,24 +58,18 @@ class EventsService {
   }
 
   /**
-   * Create a new event
+   * Create a new event - mocked implementation
    */
   async createEvent(eventData: Event): Promise<Event | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(eventData),
-      });
+      // In a real implementation, we would update the local data
+      console.log('Create event called with:', eventData);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create event');
-      }
-      
-      return await response.json();
+      // Return a mocked response with the event data and a generated ID
+      return {
+        ...eventData,
+        id: `evt_${Math.random().toString(36).substring(2, 15)}`
+      };
     } catch (error) {
       console.error('Error creating event:', error);
       return null;
@@ -81,24 +77,27 @@ class EventsService {
   }
 
   /**
-   * Update an existing event
+   * Update an existing event - mocked implementation
    */
   async updateEvent(id: string, eventData: Partial<Event>): Promise<Event | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(eventData),
-      });
-      
+      // Get the current event
+      const response = await fetch('/data/events.json');
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to update event ${id}`);
+        throw new Error('Failed to fetch events');
+      }
+      const events: Event[] = await response.json();
+      const existingEvent = events.find(event => event.id === id);
+      
+      if (!existingEvent) {
+        throw new Error(`Event not found: ${id}`);
       }
       
-      return await response.json();
+      // Return the updated event (in a real app, we would save this)
+      return {
+        ...existingEvent,
+        ...eventData
+      };
     } catch (error) {
       console.error(`Error updating event ${id}:`, error);
       return null;
@@ -106,19 +105,14 @@ class EventsService {
   }
 
   /**
-   * Delete an event
+   * Delete an event - mocked implementation
    */
   async deleteEvent(id: string): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/api/events/${id}`, {
-        method: 'DELETE',
-      });
+      // In a real implementation, we would update the local data
+      console.log(`Delete event called with ID: ${id}`);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Failed to delete event ${id}`);
-      }
-      
+      // Simulate success
       return true;
     } catch (error) {
       console.error(`Error deleting event ${id}:`, error);
@@ -127,7 +121,7 @@ class EventsService {
   }
 
   /**
-   * Create a new appointment event
+   * Create a new appointment event - mocked implementation
    */
   async createAppointment(appointmentData: {
     patientId: string;

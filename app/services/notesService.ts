@@ -1,99 +1,136 @@
 import { DoctorNote } from "../types/note";
 import { Patient } from "../types/patient";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
 export const notesService = {
   // Get all notes
   getAllNotes: async (): Promise<DoctorNote[]> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch notes');
+    try {
+      const response = await fetch('/data/doctors_notes.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch notes');
+      }
+      const notesResponse = await response.json();
+      return notesResponse.data;
+    } catch (error) {
+      console.error("Error fetching notes:", error);
+      return [];
     }
-    return response.json();
   },
 
   // Get a note by ID
-  getNoteById: async (id: string): Promise<DoctorNote> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch note');
+  getNoteById: async (id: string): Promise<DoctorNote | null> => {
+    try {
+      const response = await fetch('/data/doctors_notes.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch notes');
+      }
+      const notesResponse = await response.json();
+      const note = notesResponse.data.find((note: DoctorNote) => note.id === id);
+      
+      if (!note) {
+        throw new Error('Note not found');
+      }
+      
+      return note;
+    } catch (error) {
+      console.error("Error fetching note:", error);
+      return null;
     }
-    return response.json();
   },
 
   // Get notes by patient ID
   getNotesByPatientId: async (patientId: string): Promise<DoctorNote[]> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes/patient/${patientId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch patient notes');
+    try {
+      const response = await fetch('/data/doctors_notes.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch patient notes');
+      }
+      const notesResponse = await response.json();
+      return notesResponse.data.filter((note: DoctorNote) => note.patient.id === patientId);
+    } catch (error) {
+      console.error("Error fetching patient notes:", error);
+      return [];
     }
-    return response.json();
   },
 
-  // Create a new note
+  // Create a new note - mocked implementation
   createNote: async (note: Partial<DoctorNote>): Promise<DoctorNote> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(note),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create note');
-    }
-    
-    return response.json();
+    // In a real implementation, we would update the local data
+    // For now, just return a mock response
+    console.log('Create note called with:', note);
+    return {
+      id: `nt_${Math.random().toString(36).substring(2, 15)}`,
+      createdDate: new Date().toISOString(),
+      version: 1,
+      currentVersion: 1,
+      ...note
+    } as DoctorNote;
   },
 
-  // Update a note
+  // Update a note - mocked implementation
   updateNote: async (id: string, note: Partial<DoctorNote>): Promise<DoctorNote> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(note),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update note');
+    try {
+      // Get the current note
+      const response = await fetch('/data/doctors_notes.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch notes');
+      }
+      const notesResponse = await response.json();
+      const existingNote = notesResponse.data.find((n: DoctorNote) => n.id === id);
+      
+      if (!existingNote) {
+        throw new Error('Note not found');
+      }
+      
+      // Return the updated note (in a real app, we would save this)
+      const updatedNote = {
+        ...existingNote,
+        ...note,
+        version: existingNote.version + 1,
+        currentVersion: existingNote.currentVersion + 1
+      };
+      
+      return updatedNote;
+    } catch (error) {
+      console.error("Error updating note:", error);
+      throw error;
     }
-    
-    return response.json();
   },
 
-  // Delete a note
+  // Delete a note - mocked implementation
   deleteNote: async (id: string): Promise<void> => {
-    const response = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete note');
-    }
+    // In a real implementation, we would update the local data
+    console.log('Delete note called with ID:', id);
   },
 
   // Create a quick note with minimum required fields
   createQuickNote: async (patientId: string, content: string, providerName: string): Promise<DoctorNote> => {
-    // First get the patient data
-    const patientResponse = await fetch(`${API_BASE_URL}/api/patients/${patientId}`);
-    if (!patientResponse.ok) {
-      throw new Error('Failed to fetch patient data');
+    try {
+      // Get the patient data
+      const response = await fetch('/data/patient.json');
+      if (!response.ok) {
+        throw new Error('Failed to fetch patient data');
+      }
+      const patients: Patient[] = await response.json();
+      const patient = patients.find(p => p.id === patientId);
+      
+      if (!patient) {
+        throw new Error('Patient not found');
+      }
+      
+      // Create the note with the patient reference
+      const noteData: Partial<DoctorNote> = {
+        content,
+        summary: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
+        patient,
+        providerNames: [providerName],
+      };
+      
+      return notesService.createNote(noteData);
+    } catch (error) {
+      console.error("Error creating quick note:", error);
+      throw error;
     }
-    const patient: Patient = await patientResponse.json();
-    
-    // Create the note with the patient reference
-    const noteData: Partial<DoctorNote> = {
-      content,
-      summary: content.substring(0, 100) + (content.length > 100 ? '...' : ''),
-      patient,
-      providerNames: [providerName],
-    };
-    
-    return notesService.createNote(noteData);
   }
 };
 
