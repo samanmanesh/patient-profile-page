@@ -15,6 +15,7 @@ import { notesService } from "@/app/services/notesService";
 import { DoctorNote } from "@/app/types/note";
 import Appointments from "@/app/components/Appointments";
 import Billing from "@/app/components/Billing";
+import Notes from "@/app/components/Notes";
 
 const patientReducer = (
   state: Patient | null,
@@ -213,23 +214,16 @@ export default function PatientDetail() {
       value: "billing",
       component: <Billing
                 patient={patient as Patient}
-                dispatch={dispatch}
-                save={savePatient}
-                isLoading={isLoading}
-                saveSuccess={saveSuccess}
               />
     },
     {
       label: "Notes",
       value: "notes",
       // Commented out until Notes component is implemented
-      // component: <Notes
-      //           patient={patient as Patient}
-      //           dispatch={dispatch}
-      //           save={savePatient}
-      //           isLoading={isLoading}
-      //           saveSuccess={saveSuccess}
-      //         />
+      component: <Notes
+                patient={patient as Patient}
+          
+              />
     },
     {
       label: "Alerts",
