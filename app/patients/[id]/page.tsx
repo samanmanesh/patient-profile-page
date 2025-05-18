@@ -6,17 +6,14 @@ import Avatar from "@/app/UI/Avatar";
 import BreadcrumbNavigator from "@/app/UI/BreadcrumbNavigator";
 import { useParams } from "next/navigation";
 import { Reducer, useEffect, useReducer, useState } from "react";
-import {
-  CreditCard,
-  FileText,
-  PlusIcon,
-} from "lucide-react";
+import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 import MedicalOverview from "@/app/components/MedicalOverview";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { notesService } from "@/app/services/notesService";
 import { DoctorNote } from "@/app/types/note";
+import Appointments from "@/app/components/Appointments";
 
 const patientReducer = (
   state: Patient | null,
@@ -146,8 +143,6 @@ export default function PatientDetail() {
     return `${patient?.firstName} ${patient?.lastName}`;
   };
 
-
-
   const savePatient = async () => {
     if (!patient || isLoading) return;
     setIsLoading(true);
@@ -201,6 +196,15 @@ export default function PatientDetail() {
     {
       label: "Appointments",
       value: "appointments",
+      component: (
+          <Appointments
+          patient={patient as Patient}
+          dispatch={dispatch}
+          save={savePatient}
+          isLoading={isLoading}
+          saveSuccess={saveSuccess}
+        />
+      ),
     },
     {
       label: "Billing",
