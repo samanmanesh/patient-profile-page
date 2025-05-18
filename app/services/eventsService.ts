@@ -58,7 +58,7 @@ class EventsService {
   /**
    * Create a new event
    */
-  async createEvent(eventData: any): Promise<Event | null> {
+  async createEvent(eventData: Event): Promise<Event | null> {
     try {
       const response = await fetch(`${this.baseUrl}/api/events`, {
         method: 'POST',
@@ -147,7 +147,7 @@ class EventsService {
       attendeeIds: [appointmentData.patientId, appointmentData.providerId],
     };
     
-    return this.createEvent(eventData);
+    return this.createEvent(eventData as unknown as Event);
   }
 }
 

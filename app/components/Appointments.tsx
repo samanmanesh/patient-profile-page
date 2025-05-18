@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch } from "react";
 import { Patient } from "../types/patient";
 import { Event } from "../types/event";
 import { eventsService } from "../services/eventsService";
@@ -8,7 +8,13 @@ import { format, parseISO } from "date-fns";
 
 interface AppointmentsProps {
   patient: Patient;
-  dispatch: any; // Using any for now, but should be properly typed in production
+  dispatch: Dispatch<{
+    type: string;
+    payload:
+      | Partial<Patient>
+      | Patient
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
+  }>;
   save: () => Promise<void>;
   isLoading: boolean;
   saveSuccess: boolean;
@@ -117,7 +123,8 @@ export default function Appointments({
   const formatDate = (dateString: string) => {
     try {
       return format(parseISO(dateString), "MMM d, yyyy h:mm a");
-    } catch (e) {
+    } catch (err) {
+      console.error("Error formatting date:", err);
       return dateString;
     }
   };
@@ -164,7 +171,7 @@ export default function Appointments({
 
       {/* Simple modal for creating appointments */}
       {showNewAppointmentDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4">
               Schedule New Appointment
