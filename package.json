@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "mkdir -p public/data && cp -r app/data/*.json public/data/",
-    "build": "node scripts/vercel-debug.js && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
