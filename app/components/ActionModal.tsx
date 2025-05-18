@@ -24,10 +24,10 @@ const NewMemoForm = ({
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [creator, setCreator] = useState({
-    id: "user-123",
-    firstName: "Doctor",
-    lastName: "User",
-    email: "doctor@example.com",
+    id: "",
+    firstName: "",
+    lastName: "",
+    email: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,8 +125,14 @@ const NewMemoForm = ({
         </button>
         <button
           type="submit"
-          disabled={loading}
-          className="px-4 py-2 bg-emerald-900 text-white rounded-xl disabled:bg-emerald-300  cursor-pointer hover:bg-emerald-900/95 hover:scale-105 transition-all"
+          disabled={
+            loading ||
+            !note.trim() || 
+            !creator.firstName.trim() || 
+            !creator.lastName.trim() || 
+            !creator.email.trim()
+          }
+          className="px-4 py-2 bg-emerald-900 text-white rounded-xl disabled:bg-black/30  cursor-pointer hover:bg-emerald-900/95 hover:scale-105 transition-all"
         >
           {loading ? "Saving..." : "Save Memo"}
         </button>
@@ -438,7 +444,7 @@ const PaymentForm = ({
         </button>
         <button
           type="submit"
-          disabled={loading || paymentMethods.length === 0}
+          disabled={loading || paymentMethods.length === 0 || ! amount   || !selectedMethod}
           className="px-4 py-2 bg-emerald-900 text-white rounded-xl disabled:bg-black/30 cursor-pointer hover:bg-emerald-900/95 hover:scale-105 transition-all"
         >
           {loading ? "Processing..." : "Charge Payment"}
