@@ -11,7 +11,9 @@ const dataFilePath = path.join(process.cwd(), 'app/data/doctors_notes.json');
 function readNotes() {
   try {
     const data = fs.readFileSync(dataFilePath, 'utf8');
-    return JSON.parse(data);
+    const jsonData = JSON.parse(data);
+    // Return the data array, not the whole object
+    return jsonData.data || [];
   } catch (error) {
     console.error('Error reading notes:', error);
     return [];
@@ -20,7 +22,12 @@ function readNotes() {
 
 function writeNotes(notes: DoctorNote[]) {
   try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(notes, null, 2), 'utf8');
+    // Maintain the same structure with data array and total count
+    const jsonData = {
+      data: notes,
+      total: notes.length
+    };
+    fs.writeFileSync(dataFilePath, JSON.stringify(jsonData, null, 2), 'utf8');
     return true;
   } catch (error) {
     console.error('Error writing notes:', error);
