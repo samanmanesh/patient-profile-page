@@ -3,6 +3,7 @@ import { Patient } from "@/app/types/patient";
 import { v4 as uuidv4 } from "uuid";
 import { getPatients, savePatients } from "@/app/lib/data";
 
+
 // GET /api/patients - Get all patients with filtering and pagination
 export async function GET(request: Request) {
   try {
