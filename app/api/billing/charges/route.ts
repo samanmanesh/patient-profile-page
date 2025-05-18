@@ -4,7 +4,7 @@ import path from 'path';
 import { Charge } from '@/app/types/billing';
 
 // Path to the charges JSON file
-const dataFilePath = path.join(process.cwd(), 'app/data/charges.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/charges.json');
 
 // Helper function to read charges
 function readCharges(): Charge[] {

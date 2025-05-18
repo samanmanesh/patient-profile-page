@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Memo } from '@/app/types/memos';
 
 // Path to the memos data file
-const dataFilePath = path.join(process.cwd(), 'app/data/memos.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/memos.json');
 
 // Helper function to read memos from the JSON file
 const getMemos = (): Memo[] => {

@@ -5,12 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { DoctorNote } from '@/app/types/note';
 
 // Path to the doctor notes JSON file
-const dataFilePath = path.join(process.cwd(), 'app/data/doctors_notes.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/doctors_notes.json');
 
 // Helper functions
 function readNotes() {
   try {
-    const data = fs.readFileSync(dataFilePath, 'utf8');
+    const data = fs.readFileSync(dataFilePath, 'utf8'); 
     const jsonData = JSON.parse(data);
     // Return the data array, not the whole object
     return jsonData.data || [];

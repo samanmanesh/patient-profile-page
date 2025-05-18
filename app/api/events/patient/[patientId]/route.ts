@@ -4,7 +4,7 @@ import path from 'path';
 import { Event } from '@/app/types/event';
 
 // Path to the events JSON file
-const dataFilePath = path.join(process.cwd(), 'app/data/events.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/events.json');
 
 // Helper function to read events
 function readEvents(): Event[] {
@@ -45,7 +45,7 @@ export async function GET(
     .filter(event => event.start > now)
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
     
-    
+
   const pastEvents = patientEvents
     .filter(event => event.start <= now)
     .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());

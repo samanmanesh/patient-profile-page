@@ -4,7 +4,7 @@ import path from 'path';
 import { PaymentMethod } from '@/app/types/billing';
 
 // Path to the payment methods JSON file
-const dataFilePath = path.join(process.cwd(), 'app/data/payment_methods.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/payment_methods.json');
 
 // Helper function to read payment methods
 function readPaymentMethods(): PaymentMethod[] {
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const patientId = searchParams.get('patientId');
   console.log(`Fetching payment methods for patientId: ${patientId || 'all'}`);
   
-  
+
   if (patientId) {
     const filteredMethods = paymentMethods.filter(method => method.patientId === patientId);
     console.log(`Returning ${filteredMethods.length} payment methods for patient ${patientId}`);

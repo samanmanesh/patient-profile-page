@@ -13,7 +13,7 @@ export async function readData<T>(
     // Use dynamic imports instead of require()
     const fs = await import("fs");
     const path = await import("path");
-    const dataFilePath = path.join(process.cwd(), `app/data/${filename}`);
+    const dataFilePath = path.join(process.cwd(), `public/data/${filename}`);
     const data = fs.readFileSync(dataFilePath, "utf8");
     return JSON.parse(data);
   } catch (error) {
@@ -32,7 +32,7 @@ export async function writeData<T>(
       // Use dynamic imports instead of require()
       const fs = await import("fs");
       const path = await import("path");
-      const dataFilePath = path.join(process.cwd(), `app/data/${filename}`);
+      const dataFilePath = path.join(process.cwd(), `public/data/${filename}`);
       fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2), "utf8");
 
       // Also update the public copy to keep them in sync

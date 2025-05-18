@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { Patient } from "@/app/types/patient";
 
-const dataFilePath = path.join(process.cwd(), 'app/data/patient.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/patient.json');
 
 // Read patients data from file
 const readPatientsFromFile = (): Patient[] => {

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertsResponse } from '@/app/types/alert';
 
 // Path to the alerts data file
-const dataFilePath = path.join(process.cwd(), 'app/data/alerts.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/alerts.json');
 
 // Helper function to read alerts from the JSON file
 const getAlerts = (): AlertsResponse => {

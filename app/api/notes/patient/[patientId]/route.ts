@@ -4,7 +4,7 @@ import path from "path";
 import { DoctorNote } from "@/app/types/note";
 
 // Path to the doctor notes JSON file
-const dataFilePath = path.join(process.cwd(), "app/data/doctors_notes.json");
+const dataFilePath = path.join(process.cwd(), "public/data/doctors_notes.json");
 
 // Helper function
 function readNotes() {

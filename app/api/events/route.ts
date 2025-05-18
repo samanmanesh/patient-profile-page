@@ -6,7 +6,7 @@ import { Appointment, Event } from '@/app/types/event';
 import { Status } from '@/app/types/common';
 
 // Path to the events JSON file
-const dataFilePath = path.join(process.cwd(), 'app/data/events.json');
+const dataFilePath = path.join(process.cwd(), 'public/data/events.json');
 
 // Helper function to read events
 function readEvents(): Event[] {
