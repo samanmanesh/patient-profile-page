@@ -5,22 +5,14 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import BreadcrumbNavigator from "../UI/BreadcrumbNavigator";
 import patientService from "../services/patientService";
-import { Patient } from "../types/patient";
 
-export default async function PatientsPage({
-  searchParams,
-}: {
-  searchParams: { page?: string; limit?: string; search?: string; sortBy?: string; sortOrder?: 'asc' | 'desc' };
-}) {
-  const page = searchParams.page ? parseInt(searchParams.page) : 1;
-  const limit = searchParams.limit ? parseInt(searchParams.limit) : 10;
+export default async function PatientsPage() {
+  const page = 1;
+  const limit = 10;
   
   const patients = await patientService.getAllPatients({
     page,
     limit,
-    search: searchParams.search,
-    sortBy: searchParams.sortBy as keyof Patient | undefined,
-    sortOrder: searchParams.sortOrder,
   });
   
   // Calculate total pages based on pagination
