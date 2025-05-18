@@ -10,6 +10,7 @@ import { CreditCard, FileText, PlusIcon } from "lucide-react";
 import ActionModal from "@/app/components/ActionModal";
 import PatientInfo from "@/app/components/PatientInfo";
 import MedicalOverview from "@/app/components/MedicalOverview";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const patientReducer = (
   state: Patient | null,
@@ -71,7 +72,7 @@ export default function PatientDetail() {
     {
       label: "New Memo",
       icon: <PlusIcon className="w-4 h-4" />,
-      isActive: true,
+      isActive: false,
     },
     {
       label: "Doctor Note",
@@ -85,14 +86,28 @@ export default function PatientDetail() {
     },
   ]);
 
+  const [tab, setTab] = useState<
+    | "overview"
+    | "info"
+    | "medical"
+    | "appointments"
+    | "billing"
+    | "notes"
+    | "alerts"
+  >("overview");
+
   const onChooseActions = (action: {
     label: string;
     icon: React.ReactNode;
     isActive: boolean;
   }) => {
-    setActions(
-      actions.map((a) => ({ ...a, isActive: a.label === action.label }))
-    );
+    if (action.isActive) {
+      setActions(actions.map((a) => ({ ...a, isActive: false })));
+    } else {
+      setActions(
+        actions.map((a) => ({ ...a, isActive: a.label === action.label }))
+      );
+    }
   };
 
   useEffect(() => {
@@ -144,6 +159,88 @@ export default function PatientDetail() {
     }, 2000);
   };
 
+  const tabs = [
+    {
+      label: "Overview",
+      value: "overview",
+      // component: (
+      //   <PatientInfo
+      //     patient={patient as Patient}
+      //     dispatch={dispatch}
+      //     save={savePatient}
+      //     isLoading={isLoading}
+      //     saveSuccess={saveSuccess}
+      //   />
+      // ),
+    },
+    {
+      label: "Info",
+      value: "info",
+      component: (
+        <PatientInfo
+          patient={patient as Patient}
+          dispatch={dispatch}
+          save={savePatient}
+          isLoading={isLoading}
+          saveSuccess={saveSuccess}
+        />
+      ),
+    },
+    {
+      label: "Medical",
+      value: "medical",
+      component: (
+        <MedicalOverview
+          patient={patient as Patient}
+          dispatch={dispatch}
+          save={savePatient}
+          isLoading={isLoading}
+          saveSuccess={saveSuccess}
+        />
+      ),
+    },
+    {
+      label: "Appointments",
+      value: "appointments",
+    },
+    {
+      label: "Billing",
+      value: "billing",
+      // Commented out until Billing component is implemented
+      // component: <Billing
+      //           patient={patient as Patient}
+      //           dispatch={dispatch}
+      //           save={savePatient}
+      //           isLoading={isLoading}
+      //           saveSuccess={saveSuccess}
+      //         />
+    },
+    {
+      label: "Notes",
+      value: "notes",
+      // Commented out until Notes component is implemented
+      // component: <Notes
+      //           patient={patient as Patient}
+      //           dispatch={dispatch}
+      //           save={savePatient}
+      //           isLoading={isLoading}
+      //           saveSuccess={saveSuccess}
+      //         />
+    },
+    {
+      label: "Alerts",
+      value: "alerts",
+      // Commented out until Alerts component is implemented
+      // component: <Alerts
+      //           patient={patient}
+      //           dispatch={dispatch}
+      //           save={savePatient}
+      //           isLoading={isLoading}
+      //           saveSuccess={saveSuccess}
+      //         />
+    },
+  ];
+
   return (
     <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
       <div className="flex  items-center justify-center gap-3 h-1/6">
@@ -171,34 +268,36 @@ export default function PatientDetail() {
         onChooseActions={onChooseActions}
       />
 
-      <div className="w-full h-5/6  flex gap-4 py-4 ">
-        <div className="w-full flex flex-col gap-8 overflow-auto">
-          {patient && (
-            <PatientInfo
-              patient={patient}
-              dispatch={dispatch}
-              save={savePatient}
-              isLoading={isLoading}
-              saveSuccess={saveSuccess}
-            />
-          )}
-          {patient && (
-            <MedicalOverview
-              patient={patient}
-              dispatch={dispatch}
-              save={savePatient}
-              isLoading={isLoading}
-              saveSuccess={saveSuccess}
-            />
-          )}
-        </div>
-
-        <ActionModal
-          isOpen={isActionModalOpen}
-          onClose={() => setIsActionModalOpen(false)}
-          action={actions.find((a) => a.isActive)?.label || ""}
-          data={patient || null}
-        />
+      <div className="w-full h-5/6  flex gap-4 py-4 overflow-auto">
+        <Tabs defaultValue="overview" className="w-full h-full">
+          <TabsList className="w-full ">
+            {tabs.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {tabs.map((tab) => (
+            <TabsContent
+              key={tab.value}
+              value={tab.value}
+              className="w-full h-full overflow-auto p-6"
+            >
+              {tab?.component}
+            </TabsContent>
+          ))}
+        </Tabs>
+        {actions.find((a) => a.isActive) && (
+          <ActionModal
+            isOpen={isActionModalOpen}
+            onClose={() => {
+              setIsActionModalOpen(false);
+              setActions(actions.map((a) => ({ ...a, isActive: false })));
+            }}
+            action={actions.find((a) => a.isActive)?.label || ""}
+            data={patient || null}
+          />
+        )}
       </div>
     </div>
   );

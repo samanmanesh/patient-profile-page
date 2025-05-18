@@ -2,7 +2,7 @@ import React, { Dispatch, useState } from "react";
 import { Medication, Patient, MeasurementUnit } from "../types/patient";
 import { cn, getKeyLabel } from "../utils";
 import { Input } from "@/components/ui/input";
-import { CheckIcon, Loader2, SaveIcon, SquarePenIcon } from "lucide-react";
+import { CheckIcon, Loader2, PillIcon, SaveIcon, SquarePenIcon } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -40,7 +40,10 @@ const VitalsSection = ({
   data: Vitals | null;
   dispatch: Dispatch<{
     type: string;
-    payload: Partial<Patient> | Patient | { field: keyof Patient; value: string; subField?: keyof Patient };
+    payload:
+      | Partial<Patient>
+      | Patient
+      | { field: keyof Patient; value: string; subField?: keyof Patient };
   }>;
   isLoading: boolean;
   isEditing: boolean;
@@ -48,7 +51,12 @@ const VitalsSection = ({
 }) => {
   return (
     <div className="flex flex-col gap-2 p-4 w-full ">
-      <h4 className=" font-medium text-black/80">Vitals / Measurements</h4>
+      <div className="flex flex-col gap-2 mb-4">
+        <h4 className=" font-semibold text-black/80">Vitals / Measurements</h4>
+        <p className="text-sm text-[#73726E] italic">
+          Patient&apos;s health measurements
+        </p>
+      </div>
       <div className="flex flex-row gap-4 w-full ">
         {data?.map((item) => (
           <div
@@ -67,15 +75,15 @@ const VitalsSection = ({
                 )}
                 value={item.value ?? ""}
                 onChange={(e) => {
-                  const updatedMeasurements = patient.measurements.map(m => 
+                  const updatedMeasurements = patient.measurements.map((m) =>
                     m.id === item.id ? { ...m, value: e.target.value } : m
                   );
                   dispatch({
                     type: "setPatient",
                     payload: {
                       ...patient,
-                      measurements: updatedMeasurements
-                    }
+                      measurements: updatedMeasurements,
+                    },
                   });
                 }}
               />
@@ -88,15 +96,17 @@ const VitalsSection = ({
                 value={item.unit ?? ""}
                 type="select"
                 onChange={(e) => {
-                  const updatedMeasurements = patient.measurements.map(m => 
-                    m.id === item.id ? { ...m, unit: e.target.value as MeasurementUnit } : m
+                  const updatedMeasurements = patient.measurements.map((m) =>
+                    m.id === item.id
+                      ? { ...m, unit: e.target.value as MeasurementUnit }
+                      : m
                   );
                   dispatch({
                     type: "setPatient",
                     payload: {
                       ...patient,
-                      measurements: updatedMeasurements
-                    }
+                      measurements: updatedMeasurements,
+                    },
                   });
                 }}
               />
@@ -137,22 +147,30 @@ const MedicationsSection = ({
   ];
   return (
     <div className="flex flex-col gap-2 p-4 w-full ">
-      <h4 className=" font-medium text-black/80">Medications</h4>
+      <div className="flex flex-col gap-2 mb-4">
+        <h4 className=" font-semibold text-black/80">Medications</h4>
+        <p className="text-sm text-[#73726E] italic">
+          Current and past medications
+        </p>
+      </div>
       <div className="flex flex-row justify-between gap-4 w-full flex-wrap ">
         {data?.map((item) => (
           <div
             key={item.id}
             className="flex flex-col justify-between items-start gap-4 p-4  rounded-lg bg-[#fbfbfb] w-full flex-1 shadow-xs"
           >
-            <h4 className="text font-semibold  text-nowrap ">
-              {" "}
-              💊 {item.name}:
+            <h4 className="text font-semibold  text-nowrap flex items-center gap-2">
+              <PillIcon className="w-6 h-6" /> <span>{item.name}:</span>
             </h4>
-            <div className="flex flex-col gap-2 ">
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
               {Object.entries(item).map(
                 ([key, value]) =>
                   medicationFields.includes(key) && (
-                    <div key={key} className="flex  items-center  gap-2">
+                    <div
+                      key={key}
+                      className="flex  items-start flex-col  gap-2"
+                    >
                       <h5 className="text-sm font-medium  text-nowrap ">
                         {getKeyLabel(key as keyof Medication)}:
                       </h5>
@@ -164,15 +182,17 @@ const MedicationsSection = ({
                         )}
                         value={value ?? ""}
                         onChange={(e) => {
-                          const updatedMedications = data.map(med => 
-                            med.id === item.id ? { ...med, [key]: e.target.value } : med
+                          const updatedMedications = data.map((med) =>
+                            med.id === item.id
+                              ? { ...med, [key]: e.target.value }
+                              : med
                           );
                           dispatch({
                             type: "setPatient",
                             payload: {
                               ...patient,
-                              medications: updatedMedications
-                            }
+                              medications: updatedMedications,
+                            },
                           });
                         }}
                       />
@@ -224,20 +244,34 @@ const MedicalHistorySection = ({
     return colors[Math.floor(Math.random() * colors.length)];
   };
 
-  const handleArrayUpdate = (field: keyof Pick<Patient, "allergies" | "familyHistory" | "medicalHistory">, value: string) => {
-    const updatedArray = value.split(',').map(item => item.trim()).filter(Boolean);
+  const handleArrayUpdate = (
+    field: keyof Pick<
+      Patient,
+      "allergies" | "familyHistory" | "medicalHistory"
+    >,
+    value: string
+  ) => {
+    const updatedArray = value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
     dispatch({
       type: "setPatient",
       payload: {
         ...patient,
-        [field]: updatedArray
-      }
+        [field]: updatedArray,
+      },
     });
   };
 
   return (
     <div className="flex flex-col gap-2 p-4 w-full">
-      <h4 className=" font-medium text-black/80 ">Medical History</h4>
+      <div className="flex flex-col gap-2 mb-4">
+        <h4 className=" font-semibold text-black/80">Medical History</h4>
+        <p className="text-sm text-[#73726E] italic">
+          Conditions, allergies, and family history
+        </p>
+      </div>
 
       <Accordion
         type="multiple"
@@ -248,7 +282,7 @@ const MedicalHistorySection = ({
         <AccordionItem value="allergies">
           <AccordionTrigger className=" font-semibold text-black/80 flex items-center gap-2">
             <div className="flex gap-2">
-              ⚠️ <span>Allergies</span>
+              <PillIcon className="w-4 h-4" /> <span>Allergies</span>
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -260,8 +294,10 @@ const MedicalHistorySection = ({
                     "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
-                  value={allergies?.join(', ') ?? ""}
-                  onChange={(e) => handleArrayUpdate("allergies", e.target.value)}
+                  value={allergies?.join(", ") ?? ""}
+                  onChange={(e) =>
+                    handleArrayUpdate("allergies", e.target.value)
+                  }
                   placeholder="Enter allergies separated by commas"
                 />
               ) : allergies && allergies.length > 0 ? (
@@ -303,8 +339,10 @@ const MedicalHistorySection = ({
                     "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
-                  value={familyHistory?.join(', ') ?? ""}
-                  onChange={(e) => handleArrayUpdate("familyHistory", e.target.value)}
+                  value={familyHistory?.join(", ") ?? ""}
+                  onChange={(e) =>
+                    handleArrayUpdate("familyHistory", e.target.value)
+                  }
                   placeholder="Enter family history conditions separated by commas"
                 />
               ) : familyHistory && familyHistory.length > 0 ? (
@@ -346,8 +384,10 @@ const MedicalHistorySection = ({
                     "rounded-sm bg-[#F1F1F1] text-black p-2 focus-visible:ring-blue-500 focus-visible:ring-2 disabled:opacity-100 disabled:cursor-not-allowed disabled:bg-[#F1F1F1] disabled:border-none",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
-                  value={medicalHistory?.join(', ') ?? ""}
-                  onChange={(e) => handleArrayUpdate("medicalHistory", e.target.value)}
+                  value={medicalHistory?.join(", ") ?? ""}
+                  onChange={(e) =>
+                    handleArrayUpdate("medicalHistory", e.target.value)
+                  }
                   placeholder="Enter medical conditions separated by commas"
                 />
               ) : medicalHistory && medicalHistory.length > 0 ? (
