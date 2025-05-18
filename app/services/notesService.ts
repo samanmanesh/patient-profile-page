@@ -14,12 +14,7 @@ export const notesService = {
 
   getNoteById: async (id: string): Promise<DoctorNote | null> => {
     try {
-      const response = await fetch("/data/doctors_notes.json");
-      if (!response.ok) {
-        throw new Error("Failed to fetch notes");
-      }
-      const notesResponse = await response.json();
-      const note = notesResponse.data.find(
+      const note = (notes.data as unknown as DoctorNote[]).find(
         (note: DoctorNote) => note.id === id
       );
 
@@ -36,12 +31,7 @@ export const notesService = {
 
   getNotesByPatientId: async (patientId: string): Promise<DoctorNote[]> => {
     try {
-      const response = await fetch("/data/doctors_notes.json");
-      if (!response.ok) {
-        throw new Error("Failed to fetch patient notes");
-      }
-      const notesResponse = await response.json();
-      return notesResponse.data.filter(
+      return (notes.data as unknown as DoctorNote[]).filter(
         (note: DoctorNote) => note.patient.id === patientId
       );
     } catch (error) {
@@ -67,12 +57,7 @@ export const notesService = {
     note: Partial<DoctorNote>
   ): Promise<DoctorNote> => {
     try {
-      const response = await fetch("/data/doctors_notes.json");
-      if (!response.ok) {
-        throw new Error("Failed to fetch notes");
-      }
-      const notesResponse = await response.json();
-      const existingNote = notesResponse.data.find(
+      const existingNote = (notes.data as unknown as DoctorNote[]).find(
         (n: DoctorNote) => n.id === id
       );
 
@@ -104,11 +89,10 @@ export const notesService = {
     providerName: string
   ): Promise<DoctorNote> => {
     try {
-      const response = await fetch("/data/patient.json");
-      if (!response.ok) {
-        throw new Error("Failed to fetch patient data");
-      }
-      const patients: Patient[] = await response.json();
+      
+      
+      const patientsResponse = await import("./data/patient.json");
+      const patients = patientsResponse.default as Patient[];
       const patient = patients.find((p) => p.id === patientId);
 
       if (!patient) {
