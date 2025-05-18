@@ -218,7 +218,8 @@ const MedicalHistorySection = ({
 
       <Accordion
         type="multiple"
-        className="w-full bg-[#fbfbfb] rounded-lg p-4 shadow-sm "
+        defaultValue={["allergies", "family-history", "medical-history"]}
+        className="w-full bg-[#fbfbfb] rounded-lg p-4 shadow-sm"
       >
         {/* Allergies Section */}
         <AccordionItem value="allergies">
