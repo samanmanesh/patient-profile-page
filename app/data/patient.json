@@ -71,6 +71,16 @@
       "startDate": "2023-02-20",
       "endDate": null,
       "active": true
+    },
+    {
+      "id": "md_4d3c2b1a0z9y8x7w6v",
+      "patientId": "pt_5f8a92a3eb28c15dc7a9a3d1",
+      "name": "Advil",
+      "dosage": "200mg",
+      "frequency": "Twice daily",
+      "startDate": "2023-02-20",
+      "endDate": null,
+      "active": true
     }
   ]
 }
