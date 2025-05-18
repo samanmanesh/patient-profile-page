@@ -145,10 +145,7 @@ export default function PatientDetail() {
   };
 
   return (
-    <div
-      className="flex flex-col w-full h-screen px-8 py-2 items-center relative
-    "
-    >
+    <div className="flex flex-col w-full h-screen px-8 py-2 items-center relative">
       <div className="flex  items-center justify-center gap-3 h-1/6">
         <Avatar
           name={getPatientName()}
